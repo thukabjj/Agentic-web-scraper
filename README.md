@@ -39,5 +39,8 @@ flowchart TD
     style E fill:#bbf,stroke:#333,stroke-width:2px
 ```
 
+## Technology
+- This project is built using [fast-agent](https://fast-agent.ai/) for agent orchestration and MCP integration.
+
 ## License
 MIT
