@@ -1,54 +1,61 @@
 # Agentic Web Scraper
 
-高精度なエージェント駆動型Webクローラー。LLM・MCP・Fetch MCPを活用し、Webページから本文のみを抽出しノイズを除去します。
+A high-precision, agent-driven web crawler that uses LLM, MCP, and Fetch MCP to extract main content and remove noise from web pages.
 
-## 特徴
-- **LLMによる評価メトリクスの自動生成**: サイトのトップページからLLMが「重要なページの特徴語・カテゴリ・評価基準」を自動抽出
-- **メトリクスに基づくページ評価・採用/非採用判断**: 生成されたメトリクスを使い、サイトマップの全URLをLLMまたはルールで評価し、クロール対象を自動決定
-- **LLMによるノイズ除去**: ページ本文のMarkdownからナビゲーション・フッター・広告などのノイズをLLMで除去
-- **Fetch MCP連携**: MCPサーバー経由で堅牢にページ内容を取得
-- **Markdown出力**: クリーンな本文をMarkdownファイルに保存
+## Features
+- **Automatic metrics generation by LLM**: The LLM analyzes the root page and generates a list of important page types, categories, or features to prioritize for crawling.
+- **Page evaluation and selection based on metrics**: All URLs from the sitemap are evaluated (by LLM or rule) using the generated metrics, and only relevant pages are crawled.
+- **LLM-powered cleaning**: Removes navigation, footers, ads, and other noise from Markdown content using LLM (no summarization, just noise removal).
+- **Fetch MCP integration**: Robust content retrieval via MCP server.
+- **Markdown output**: Clean, readable content saved as a single Markdown file.
 
-## 利用方法
-1. リポジトリをクローン:
+## Prerequisites
+- [uv](https://docs.astral.sh/uv/) and `uvx` must be available in your environment.
+  - `uv` is a modern Python package manager and runner.
+  - `uvx` allows running CLI tools (like `mcp-server-fetch`) without manual installation; uvx will fetch and run them automatically as needed.
+- No need to manually install `mcp-server-fetch` or other MCP servers if using uv/uvx.
+
+## Usage
+1. Clone the repository:
    ```bash
    git clone https://github.com/KunihiroS/Agentic-web-scraper.git
    cd Agentic-web-scraper
    ```
-2. [uv](https://docs.astral.sh/uv/)をインストールし、`fast-agent-mcp`をセットアップ:
+2. Install fast-agent-mcp and set up:
    ```bash
    uv pip install fast-agent-mcp
    uv fast-agent setup
    ```
-3. MCPサーバーやAPIキーを必要に応じて設定
-4. クローラーを実行:
+3. Configure your MCP server and API keys as needed (see `fastagent.config.yaml`)
+4. Run the crawler (specify the root URL as an argument or interactively):
    ```bash
-   uv run agent.py
+   uv run agent.py https://fast-agent.ai/
    ```
-5. 取得した本文は `site_crawl_result.md` に保存されます
+5. The cleaned content will be saved to `site_crawl_result.md`
 
-## アーキテクチャ
+## Architecture
 ```mermaid
 flowchart TD
-    A["ユーザーがroot URLを指定"] --> B["fetch_sitemap_urlsでsitemap.xml取得"]
-    B --> C["全URLリスト抽出"]
-    C --> D["rootページのMarkdown取得 (content_fetcher_agent)"]
-    D --> E["LLMで評価メトリクス自動生成 (metrics_generator_agent)"]
-    E --> F["全URLをメトリクスで評価 (url_evaluator_agent)"]
-    F --> G["採用URLごとにMarkdown取得 (content_fetcher_agent)"]
-    G --> H["LLMでノイズ除去 (content_cleaner_agent)"]
-    H --> I["本文Markdownを保存"]
-    I --> J{"次のURLがある?"}
+    A["User provides root URL"] --> B["fetch_sitemap_urls: Get sitemap.xml"]
+    B --> C["Extract all URLs"]
+    C --> D["Fetch root page Markdown (content_fetcher_agent)"]
+    D --> E["LLM generates evaluation metrics (metrics_generator_agent)"]
+    E --> F["Evaluate all URLs with metrics (url_evaluator_agent)"]
+    F --> G["For each selected URL, fetch Markdown (content_fetcher_agent)"]
+    G --> H["LLM noise removal (content_cleaner_agent)"]
+    H --> I["Save cleaned Markdown"]
+    I --> J{"More URLs?"}
     J -- "Yes" --> G
-    J -- "No" --> K["site_crawl_result.md完成"]
+    J -- "No" --> K["site_crawl_result.md complete"]
     style E fill:#f9f,stroke:#333,stroke-width:2px
     style H fill:#f9f,stroke:#333,stroke-width:2px
     style G fill:#bbf,stroke:#333,stroke-width:2px
     style D fill:#bbf,stroke:#333,stroke-width:2px
 ```
 
-## 技術スタック
-- [fast-agent](https://fast-agent.ai/) をエージェントオーケストレーション・MCP連携に利用
+## Technology Stack
+- [fast-agent](https://fast-agent.ai/) for agent orchestration and MCP integration
+- [uv](https://docs.astral.sh/uv/) and `uvx` for dependency and CLI tool management
 
-## ライセンス
+## License
 MIT

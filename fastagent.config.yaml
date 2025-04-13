@@ -34,36 +34,3 @@ mcp:
         fetch:
             command: "uvx"
             args: ["mcp-server-fetch"]
-        # filesystem:
-        #     command: "npx"
-        #     args: ["-y", "@modelcontextprotocol/server-filesystem", "."]
-        # pulsemcp:
-        #     command: "npx"
-        #     args: ["-y", "pulsemcp-server"]
-        # google-patents:
-        #     command: "npx"
-        #     args: ["-y", "@kunihiros/google-patents-mcp"]
-        # patsnap-mcp:
-        #     command: "node"
-        #     args: ["/home/kunihiros/dev/aider/projects/patsnap-mcp/build/index.js"] # 実際のパスに修正が必要な場合があります
-        # arxiv-mcp-server:
-        #     command: "/home/kunihiros/.local/bin/uv"
-        #     args: ["tool", "run", "arxiv-mcp-server", "--storage-path", "."]
-        # tavily:
-        #    command: "bash"
-        #    args: ["-c", "npx -y tavily-mcp@0.1.3"]
-        # # brave-search: # 必要であればコメント解除して設定
-        # #     command: "npx"
-        # #     args: ["-y", "@modelcontextprotocol/server-brave-search"]
-        # claude-code-server:
-        #     command: "npx"
-        #     args: ["-y", "@kunihiros/claude-code-mcp"]
-        # mem0:
-        #     command: "/home/kunihiros/.local/bin/mcp-proxy"
-        #     args: ["http://127.0.0.1:6789/sse"] # mem0サーバーがこのURLで動作している前提
-        # sequential-thinking:
-        #     command: "npx"
-        #     args: ["-y", "@modelcontextprotocol/server-sequential-thinking"]
-        # rag-web-browser:
-        #     command: "node"
-        #     args: ["/home/kunihiros/dev/aider/projects/mcp-server-rag-web-browser/build/index.js"] # 実際のパスに修正が必要な場合があります
