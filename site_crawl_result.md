@@ -4,32 +4,26 @@
 
 * **Set up in 5 minutes**
 
-  Install [`fast-agent-mcp`](https://pypi.org/project/fast-agent-mcp/) with [`uv`](https://docs.astral.sh/uv/) and get up and running in minutes
-
+  Install [`fast-agent-mcp`](https://pypi.org/project/fast-agent-mcp/) with [`uv`](https://docs.astral.sh/uv/) and get up and running in minutes.
 * **Batteries Included**
 
   Out-of-the box examples of sophisticated Agents, Workflows and advanced MCP Usage.
-
 * **Comprehensive Test Suite**
 
-  Comprehensive test automation, accelerating delivery and assuring quality
-
+  Comprehensive test automation, accelerating delivery and assuring quality.
 * **MCP Feature Support**
 
-  First MCP Host to support Tools, Prompts, Resources, Sampling and Roots  
-  [Reference](mcp/)
-
+  First MCP Host to support Tools, Prompts, Resources, Sampling and Roots ([Reference](mcp/)).
 * **MCP Native**
 
   MCP-first design makes multi-modal Agent application development easy.
-
 * **Agent Developer Friendly**
 
-  Lightweight deployment – in-built Echo and Playback LLMs allow robust agent application testing
+  Lightweight deployment - in-built Echo and Playback LLMs allow robust agent application testing.
 
 ## Getting Started
 
-**fast-agent** lets you create and interact with sophisticated Agents and Workflows in minutes. It's multi-modal – supporting Images and PDFs in Prompts, Resources and MCP Tool Call results.
+**fast-agent** lets you create and interact with sophisticated Agents and Workflows in minutes. It's multi-modal - supporting Images and PDFs in Prompts, Resources and MCP Tool Call results.
 
 Prebuilt agents and examples implementing the patterns in Anthropic's [building effective agents](https://www.anthropic.com/engineering/building-effective-agents) paper get you building valuable applications quickly. Seamlessly use MCP Servers with your agents, or host your agents as MCP Servers.
 
@@ -87,6 +81,7 @@ index.css
 ```
 
 They can either be loaded with the `load_prompt_multipart` function, or delivered via the built-in `prompt-server`.
+
 
 
 # https://fast-agent.ai/agents/defining/
@@ -201,7 +196,7 @@ wisdom, it was the age of foolishness, it was the epoch of belief, it was
 the epoch of incredulity, ...
 ```
 
-Prompt files can contain conversations to aid in-context learning or allow you to replay conversations with the Playback LLM:
+Prompts files can contain conversations to aid in-context learning or allow you to replay conversations with the Playback LLM:
 
 sizing_conversation.txt
 
@@ -360,7 +355,7 @@ Each agent exposes an MCP Tool for sending messages to the agent, and a Prompt t
 
 This enables cross-agent state transfer via the MCP Prompts.
 
-The MCP Server can also be started programatically.
+The MCP Server can also be started programmatically.
 
 ### Programmatic Server Startup
 
@@ -530,7 +525,7 @@ Below are some recommended resources for developing with the Model Context Proto
 
 FastAgent is built to seamlessly integrate with the MCP SDK type system:
 
-Conversations with assistants are based on `PromptMessageMultipart` - an extension the the mcp `PromptMessage` type, with support for multiple content sections. This type is expected to become native in a future version of MCP: https://github.com/modelcontextprotocol/specification/pull/198
+Conversations with assistants are based on `PromptMessageMultipart` – an extension of the MCP `PromptMessage` type, with support for multiple content sections. This type is expected to become native in a future version of MCP: https://github.com/modelcontextprotocol/specification/pull/198
 
 ## Message History Transfer
 
@@ -546,7 +541,7 @@ async def main() -> None:
     async with fast.run() as agent:
         # Start an interactive session with "haiku"
         await agent.prompt(agent_name="haiku")
-        # Transfer the message history top "openai" (using PromptMessageMultipart)
+        # Transfer the message history to "openai" (using PromptMessageMultipart)
         await agent.openai.generate(agent.haiku.message_history)
         # Continue the conversation
         await agent.prompt(agent_name="openai")
@@ -618,7 +613,7 @@ This can be helpful when developing applications to:
 
 ## Passthrough
 
-By default, the `passthrough` model echos messages sent to it.
+By default, the `passthrough` model echoes messages sent to it.
 
 ### Fixed Responses
 
@@ -648,7 +643,7 @@ Generate some JSON
 }
 ```
 
-This can then be used with the `prompt-server` you can apply the MCP Prompt to the agent, either programmatically with `apply_prompt` or with the `/prompts` command in the interactive shell.
+This can then be used with the `prompt-server`. You can apply the MCP Prompt to the agent programmatically with `apply_prompt` or with the `/prompts` command in the interactive shell.
 
 Alternatively, you can load the file with `load_message_multipart`.
 
@@ -669,6 +664,8 @@ temperature, _ = agent.playback.structured("Generate some JSON")
 
 When the `playback` runs out of messages, it returns `MESSAGES EXHAUSTED (list size [a]) ([b] overage)`.
 
+List size is the total number of messages originally loaded, and overage is the number of requests made after exhaustion.
+
 
 # https://fast-agent.ai/models/llm_providers/
 
@@ -677,8 +674,6 @@ When the `playback` runs out of messages, it returns `MESSAGES EXHAUSTED (list s
 For each model provider, you can configure parameters either through environment variables or in your `fastagent.config.yaml` file.
 
 ### Common Configuration Format
-
-In your `fastagent.config.yaml`:
 
 ```
 <provider>:
@@ -705,25 +700,23 @@ anthropic:
 
 **Model Name Aliases:**
 
-| Model Alias | Maps to |
-| --- | --- |
-| `claude` | `claude-3-7-sonnet-latest` |
-| `sonnet` | `claude-3-7-sonnet-latest` |
-| `sonnet35` | `claude-3-5-sonnet-latest` |
-| `sonnet37` | `claude-3-7-sonnet-latest` |
-| `haiku` | `claude-3-5-haiku-latest` |
-| `haiku3` | `claude-3-haiku-20240307` |
-| `haiku35` | `claude-3-5-haiku-latest` |
-| `opus` | `claude-3-opus-latest` |
-| `opus3` | `claude-3-opus-latest` |
+| Model Alias | Maps to                    |
+| ----------- | -------------------------- |
+| `claude`    | `claude-3-7-sonnet-latest` |
+| `sonnet`    | `claude-3-7-sonnet-latest` |
+| `sonnet35`  | `claude-3-5-sonnet-latest` |
+| `sonnet37`  | `claude-3-7-sonnet-latest` |
+| `haiku`     | `claude-3-5-haiku-latest`  |
+| `haiku3`    | `claude-3-haiku-20240307`  |
+| `haiku35`   | `claude-3-5-haiku-latest`  |
+| `opus`      | `claude-3-opus-latest`     |
+| `opus3`     | `claude-3-opus-latest`     |
 
 ### OpenAI
 
-**fast-agent** supports OpenAI `gpt-4o`, `gpt-4o-mini`, `o1-preview`, `o1` and `o3-mini` models. Arbitrary model names are supported with `openai.<model_name>`. Supported modalities are model-dependent, check the [OpenAI Models Page](https://platform.openai.com/docs/models) for the latest information.
+**fast-agent** supports OpenAI `gpt-4o`, `gpt-4o-mini`, `o1-preview`, `o1` and `o3-mini` models. Arbitrary model names are supported with `openai.<model_name>`. Supported modalities are model-dependent; check the [OpenAI Models Page](https://platform.openai.com/docs/models) for the latest information.
 
-Structured outputs use the OpenAI API Structured Outputs feature.
-
-Future versions of **fast-agent** will have enhanced model capability handling.
+Structured outputs use the OpenAI API Structured Outputs feature. Future versions of **fast-agent** will have enhanced model capability handling.
 
 **YAML Configuration:**
 
@@ -740,97 +733,18 @@ openai:
 
 **Model Name Aliases:**
 
-| Model Alias | Maps to |
-| --- | --- |
-| `gpt-4o` | `gpt-4o` |
-| `gpt-4o-mini` | `gpt-4o-mini` |
-| `o1` | `o1` |
-| `o1-mini` | `o1-mini` |
-| `o1-preview` | `o1-preview` |
-| `o3-mini` | `o3-mini` |
-
-### DeepSeek
-
-DeepSeek v3 is supported for Text and Tool calling.
-
-**YAML Configuration:**
-
-```
-deepseek:
-  api_key: "your_deepseek_key"
-  base_url: "https://api.deepseek.com/v1"
-```
-
-**Environment Variables:**
-
-* `DEEPSEEK_API_KEY`: Your DeepSeek API key
-* `DEEPSEEK_BASE_URL`: Override the API endpoint
-
-**Model Name Aliases:**
-
-| Model Alias | Maps to |
-| --- | --- |
-| `deepseek` | `deepseek-chat` |
-| `deepseek3` | `deepseek-chat` |
-
-### Generic OpenAI / Ollama
-
-*Warning*
-
-Use the Generic Provider to connect to OpenAI compatible models (including Ollama).  
-Tool Calling and other modalities for generic models are not included in the e2e test suite, and should be used at your own risk.
-
-Models prefixed with `generic` will use a generic OpenAI endpoint, with the defaults configured to work with Ollama.
-
-For example, to run with Llama 3.2 latest you can specify `generic.llama3.2:latest` and no further configuration should be required.
-
-**YAML Configuration:**
-
-```
-generic:
-  api_key: "ollama" # Default for Ollama, change as needed
-  base_url: "http://localhost:11434/v1" # Default for Ollama
-```
-
-**Environment Variables:**
-
-* `GENERIC_API_KEY`: Your API key (defaults to `ollama` for Ollama)
-* `GENERIC_BASE_URL`: Override the API endpoint
-
-**Usage with other OpenAI API compatible providers:**  
-By configuring the `base_url` and appropriate `api_key`, you can connect to any OpenAI API-compatible provider.
-
-### OpenRouter
-
-Uses the [OpenRouter](https://openrouter.ai/) aggregation service. Models are accessed via an OpenAI-compatible API. Supported modalities depend on the specific model chosen on OpenRouter.
-
-Models *must* be specified using the `openrouter.` prefix followed by the full model path from OpenRouter (e.g., `openrouter.google/gemini-flash-1.5`).
-
-**YAML Configuration:**
-
-```
-openrouter:
-  api_key: "your_openrouter_key" # Required
-  base_url: "https://openrouter.ai/api/v1" # Default, only include to override
-```
-
-**Environment Variables:**
-
-* `OPENROUTER_API_KEY`: Your OpenRouter API key
-* `OPENROUTER_BASE_URL`: Override the API endpoint
-
-**Model Name Aliases:**
-
-OpenRouter does not use aliases in the same way as Anthropic or OpenAI. You must always use the `openrouter.provider/model-name` format.
+| Model Alias   | Maps to      |
+| ------------- | ------------ |
+| `gpt-4o`      | `gpt-4o`     |
+| `gpt-4o-mini` | `gpt-4o-mini`|
+| `o1`          | `o1`         |
+| `o1-mini`     | `o1-mini`    |
+| `o1-preview`  | `o1-preview` |
+| `o3-mini`     | `o3-mini`
 
 
 # https://fast-agent.ai/welcome/
 
-# fast-agent Documentation
+# Index - fast-agent documentation
 
-Welcome to the fast-agent documentation site.  
-
-<!--  
-Note: This page is rendered as HTML and primarily includes site chrome (header, navigation, footer, etc.).  
-For detailed documentation content in markdown, please refer to the individual sections (e.g. Agents, MCP, Models, etc.).  
--->
+As featured on [PulseMCP](https://www.pulsemcp.com/posts/newsletter-cursor-10b-levels-flies-mcp-hype#featured) – find thousands of MCP Servers for your Agents [here](https://www.pulsemcp.com/servers).

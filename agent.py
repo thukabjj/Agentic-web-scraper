@@ -1,6 +1,7 @@
 import asyncio
 import requests
 import xml.etree.ElementTree as ET
+import sys
 from mcp_agent.core.fastagent import FastAgent
 from mcp_agent.core.direct_decorators import agent
 
@@ -67,8 +68,15 @@ def save_crawled_content(contents, filename="site_crawl_result.md"):
     print(f"[INFO] Saved {len(contents)} pages to {filename}")
 
 async def main():
-    sitemap_url = "https://fast-agent.ai/sitemap.xml"
-    root_url = "https://fast-agent.ai/"
+    # ユーザ入力からroot URLを受け付ける
+    if len(sys.argv) > 1:
+        root_url = sys.argv[1]
+    else:
+        root_url = input("Enter the root URL (e.g. https://fast-agent.ai/): ").strip()
+    if not root_url.startswith("http"):
+        print("Please provide a valid URL (e.g. https://example.com/)")
+        return
+    sitemap_url = root_url.rstrip("/") + "/sitemap.xml"
     urls = fetch_sitemap_urls(sitemap_url)
     async with fast.run() as agent:
         print(f"[INFO] Fetching root page: {root_url}")
