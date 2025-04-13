@@ -1,49 +1,54 @@
 # Agentic Web Scraper
 
-A high-precision, agent-driven web crawler that uses LLM, MCP, and Fetch MCP to extract main content and remove noise from web pages.
+高精度なエージェント駆動型Webクローラー。LLM・MCP・Fetch MCPを活用し、Webページから本文のみを抽出しノイズを除去します。
 
-## Features
-- **Agentic workflow**: Modular agents for sitemap parsing, content fetching, cleaning, and evaluation
-- **LLM-powered cleaning**: Uses LLM to remove navigation, footers, ads, and other noise from Markdown content
-- **Fetch MCP integration**: Robust content retrieval via MCP server
-- **Flexible evaluation**: LLM-based or rule-based URL prioritization
-- **Markdown output**: Clean, readable content saved as a single Markdown file
+## 特徴
+- **LLMによる評価メトリクスの自動生成**: サイトのトップページからLLMが「重要なページの特徴語・カテゴリ・評価基準」を自動抽出
+- **メトリクスに基づくページ評価・採用/非採用判断**: 生成されたメトリクスを使い、サイトマップの全URLをLLMまたはルールで評価し、クロール対象を自動決定
+- **LLMによるノイズ除去**: ページ本文のMarkdownからナビゲーション・フッター・広告などのノイズをLLMで除去
+- **Fetch MCP連携**: MCPサーバー経由で堅牢にページ内容を取得
+- **Markdown出力**: クリーンな本文をMarkdownファイルに保存
 
-## Usage
-1. Clone the repository:
+## 利用方法
+1. リポジトリをクローン:
    ```bash
    git clone https://github.com/KunihiroS/Agentic-web-scraper.git
    cd Agentic-web-scraper
    ```
-2. Install dependencies (see requirements.txt)
+2. [uv](https://docs.astral.sh/uv/)をインストールし、`fast-agent-mcp`をセットアップ:
    ```bash
-   pip install -r requirements.txt
+   uv pip install fast-agent-mcp
+   uv fast-agent setup
    ```
-4. Configure your MCP server and API keys as needed
-5. Run the crawler:
+3. MCPサーバーやAPIキーを必要に応じて設定
+4. クローラーを実行:
    ```bash
    uv run agent.py
    ```
-6. The cleaned content will be saved to `site_crawl_result.md`
+5. 取得した本文は `site_crawl_result.md` に保存されます
 
-## Architecture
+## アーキテクチャ
 ```mermaid
 flowchart TD
-    A["User provides root URL"] --> B["fetch_sitemap_urls: Get sitemap.xml"]
-    B --> C["Extract all URLs"]
-    C --> D["For each URL"]
-    D --> E["content_fetcher_agent: Fetch Markdown"]
-    E --> F["content_cleaner_agent: LLM noise removal"]
-    F --> G["Save cleaned Markdown"]
-    G --> H{"More URLs?"}
-    H -- "Yes" --> D
-    H -- "No" --> I["site_crawl_result.md complete"]
-    style F fill:#f9f,stroke:#333,stroke-width:2px
-    style E fill:#bbf,stroke:#333,stroke-width:2px
+    A["ユーザーがroot URLを指定"] --> B["fetch_sitemap_urlsでsitemap.xml取得"]
+    B --> C["全URLリスト抽出"]
+    C --> D["rootページのMarkdown取得 (content_fetcher_agent)"]
+    D --> E["LLMで評価メトリクス自動生成 (metrics_generator_agent)"]
+    E --> F["全URLをメトリクスで評価 (url_evaluator_agent)"]
+    F --> G["採用URLごとにMarkdown取得 (content_fetcher_agent)"]
+    G --> H["LLMでノイズ除去 (content_cleaner_agent)"]
+    H --> I["本文Markdownを保存"]
+    I --> J{"次のURLがある?"}
+    J -- "Yes" --> G
+    J -- "No" --> K["site_crawl_result.md完成"]
+    style E fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#f9f,stroke:#333,stroke-width:2px
+    style G fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#bbf,stroke:#333,stroke-width:2px
 ```
 
-## Technology
-- This project is built using [fast-agent](https://fast-agent.ai/) for agent orchestration and MCP integration.
+## 技術スタック
+- [fast-agent](https://fast-agent.ai/) をエージェントオーケストレーション・MCP連携に利用
 
-## License
+## ライセンス
 MIT
