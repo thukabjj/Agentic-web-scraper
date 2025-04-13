@@ -16,12 +16,15 @@ A high-precision, agent-driven web crawler that uses LLM, MCP, and Fetch MCP to 
    cd Agentic-web-scraper
    ```
 2. Install dependencies (see requirements.txt)
-3. Configure your MCP server and API keys as needed
-4. Run the crawler:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Configure your MCP server and API keys as needed
+5. Run the crawler:
    ```bash
    uv run agent.py
    ```
-5. The cleaned content will be saved to `site_crawl_result.md`
+6. The cleaned content will be saved to `site_crawl_result.md`
 
 ## Architecture
 ```mermaid
