@@ -11,15 +11,52 @@ def fetch_sitemap_urls(sitemap_url):
     headers = {
         "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
     }
-    response = requests.get(sitemap_url, headers=headers)
-    print(f"[DEBUG] Fetched: {sitemap_url} (status: {response.status_code})")
-    if response.status_code != 200:
-        raise Exception(f"Failed to fetch sitemap from {sitemap_url}. Status code: {response.status_code}")
-    namespace = {'ns': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
-    root = ET.fromstring(response.content)
-    urls = [loc.text for loc in root.findall('.//ns:loc', namespace) if loc.text]
-    print(f"[DEBUG] Extracted {len(urls)} URLs. First 10: {urls[:10]}")
-    return urls
+    try:
+        response = requests.get(sitemap_url, headers=headers)
+        print(f"[DEBUG] Fetched: {sitemap_url} (status: {response.status_code})")
+        if response.status_code != 200:
+            print("[WARN] sitemap.xml not found or not 200. Fallback to link extraction.")
+            return None
+        namespace = {'ns': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+        root = ET.fromstring(response.content)
+        urls = [loc.text for loc in root.findall('.//ns:loc', namespace) if loc.text]
+        print(f"[DEBUG] Extracted {len(urls)} URLs. First 10: {urls[:10]}")
+        return urls
+    except Exception as e:
+        print(f"[ERROR] sitemap.xml parse error: {e}")
+        return None
+
+async def extract_links_from_html_async(url):
+    from playwright.async_api import async_playwright
+    from bs4 import BeautifulSoup
+    links = set()
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        context = await browser.new_context(
+            user_agent="Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+            viewport={"width": 1280, "height": 720}
+        )
+        page = await context.new_page()
+        await page.goto(url, wait_until="networkidle")
+        html = await page.content()
+        await browser.close()
+        soup = BeautifulSoup(html, "html.parser")
+        for a in soup.find_all("a", href=True):
+            href = a["href"]
+            if href.startswith("http"):
+                links.add(href)
+            elif href.startswith("/"):
+                from urllib.parse import urljoin
+                links.add(urljoin(url, href))
+    print(f"[DEBUG] Playwright-extracted {len(links)} links from HTML. First 10: {list(links)[:10]}")
+    return list(links)
+
+@fast.agent(
+    "link_extractor_agent",
+    instruction="Given the raw HTML of a web page, extract all unique internal links (absolute URLs within the same domain) that are likely to be important for crawling (e.g., documentation, guides, API, tutorials, etc). Return a Python list of URLs as strings. Do not include navigation, footer, or external links."
+)
+async def link_extractor_agent(agent, html: str, base_url: str):
+    pass
 
 @fast.agent(
     "metrics_generator_agent",
@@ -42,14 +79,17 @@ def url_evaluator_agent(urls, metrics):
 
 @fast.agent(
     "content_fetcher_agent",
-    instruction="Fetch the content of the given URL as Markdown using Fetch MCP.",
+    instruction="Fetch the content of the given URL as Markdown using Fetch MCP. If raw_html is True, fetch the raw HTML instead.",
     servers=["fetch"]
 )
-async def content_fetcher_agent(agent, url: str):
+async def content_fetcher_agent(agent, url: str, raw_html: bool = False):
     try:
-        markdown = await agent.mcp.fetch.fetch_markdown(url=url, max_length=100000)
-        if isinstance(markdown, str):
-            return markdown
+        if raw_html:
+            content = await agent.mcp.fetch.fetch_markdown(url=url, raw=True, max_length=100000)
+        else:
+            content = await agent.mcp.fetch.fetch_markdown(url=url, max_length=100000)
+        if isinstance(content, str):
+            return content
         else:
             return "[ERROR] fetch_markdown did not return string"
     except Exception as e:
@@ -68,7 +108,6 @@ def save_crawled_content(contents, filename="site_crawl_result.md"):
     print(f"[INFO] Saved {len(contents)} pages to {filename}")
 
 async def main():
-    # ユーザ入力からroot URLを受け付ける
     if len(sys.argv) > 1:
         root_url = sys.argv[1]
     else:
@@ -79,6 +118,10 @@ async def main():
     sitemap_url = root_url.rstrip("/") + "/sitemap.xml"
     urls = fetch_sitemap_urls(sitemap_url)
     async with fast.run() as agent:
+        if urls is None:
+            print("[INFO] sitemap.xml not found. Falling back to Playwright-based HTML link extraction.")
+            urls = await extract_links_from_html_async(root_url)
+            print(f"[DEBUG] Playwright-extracted {len(urls)} links. First 10: {urls[:10] if urls else []}")
         print(f"[INFO] Fetching root page: {root_url}")
         root_content = await agent.content_fetcher_agent(root_url)
         print(f"[INFO] Generating evaluation metrics from root page content...")

@@ -1,3 +1,4 @@
-fast-agent>=0.7.0
+fast-agent-mcp
 requests>=2.31.0
+beautifulsoup4>=4.12.0
 xmltodict>=0.13.0
