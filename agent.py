@@ -41,13 +41,16 @@ async def extract_links_from_html_async(url):
         html = await page.content()
         await browser.close()
         soup = BeautifulSoup(html, "html.parser")
-        for a in soup.find_all("a", href=True):
+        anchors = soup.find_all("a", href=True)
+        total_anchors = len(anchors)
+        for index, a in enumerate(anchors, start=1):
             href = a["href"]
             if href.startswith("http"):
                 links.add(href)
             elif href.startswith("/"):
                 from urllib.parse import urljoin
                 links.add(urljoin(url, href))
+            print(f"[PROGRESS] Processing links: {index}/{total_anchors} ({(index/total_anchors)*100:.2f}%)")
     print(f"[DEBUG] Playwright-extracted {len(links)} links from HTML. First 10: {list(links)[:10]}")
     return list(links)
 
@@ -128,14 +131,29 @@ async def main():
         metrics = await agent.metrics_generator_agent(root_content)
         print(f"[INFO] Metrics generated: {metrics}")
         evaluated = url_evaluator_agent(urls, metrics)
+        import hashlib
         target_urls = [r["url"] for r in evaluated if r["score"] == "HIGH"]
         print(f"[INFO] Fetching and cleaning content for {len(target_urls)} URLs via Fetch MCP + LLM...")
         contents = []
-        for url in target_urls:
-            print(f"[INFO] Fetching: {url}")
+        total_urls = len(target_urls)
+        # root_urlをハッシュ化してファイル名に含める
+        url_hash = hashlib.sha256(root_url.encode("utf-8")).hexdigest()[:10]
+        resume_file = f"last_processed_index_{url_hash}.txt"
+        start_index = 0  # デフォルトの開始インデックス
+        try:
+            with open(resume_file, "r") as f:
+                start_index = int(f.read().strip())
+                print(f"[INFO] Resuming from index {start_index + 1}")
+        except FileNotFoundError:
+            pass
+        for index, url in enumerate(target_urls[start_index:], start=start_index + 1):
+            print(f"[INFO] Processing URL {index}/{total_urls}: {url}")
             markdown = await agent.content_fetcher_agent(url)
             cleaned = await agent.content_cleaner_agent(markdown)
             contents.append(f"# {url}\n\n{cleaned}\n")
+            print(f"[PROGRESS] {index}/{total_urls} URLs processed ({(index/total_urls)*100:.2f}%)")
+            with open(resume_file, "w") as f:
+                f.write(str(index))
     save_crawled_content(contents)
 
 if __name__ == "__main__":

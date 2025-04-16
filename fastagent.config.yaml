@@ -10,7 +10,7 @@
 # If not specified, defaults to "haiku". 
 # Can be overriden with a command line switch --model=<model>, or within the Agent constructor.
 
-default_model: o3-mini
+default_model: gpt-4o-mini
 
 # Logging and Console Configuration:
 logger:

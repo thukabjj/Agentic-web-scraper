@@ -64,10 +64,6 @@ flowchart TD
     I --> J{"More URLs?"}
     J -- "Yes" --> G
     J -- "No" --> K["site_crawl_result.md complete"]
-    style E fill:#f9f,stroke:#333,stroke-width:2px
-    style H fill:#f9f,stroke:#333,stroke-width:2px
-    style G fill:#bbf,stroke:#333,stroke-width:2px
-    style D fill:#bbf,stroke:#333,stroke-width:2px
 ```
 
 ## Technology Stack
