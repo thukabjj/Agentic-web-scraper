@@ -1,4 +1,18 @@
-fast-agent-mcp
-requests
-beautifulsoup4
-playwright
+# Core web scraping dependencies
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+aiohttp>=3.8.0
+
+# Configuration and data handling
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Observability (simplified)
+structlog>=23.2.0
+
+# Async utilities
+httpx>=0.25.0
+
+# CLI utilities
+typer>=0.9.0
+rich>=13.7.0

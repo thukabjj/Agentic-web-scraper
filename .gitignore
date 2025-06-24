@@ -140,6 +140,8 @@ dist
 
 # Python / FastAgent specific
 .venv/
+.uv/
+.python-version
 logs/
 fastagent.secrets.yaml
 __pycache__/
@@ -153,3 +155,17 @@ dist/
 
 # output files
 site_crawl_result.md
+crawl_targets_*.json
+last_processed_index_*.txt
+
+# Performance testing outputs
+tests/performance/results/
+tests/performance/reports/
+
+# Observability outputs
+metrics/
+traces/
+
+# Local LLM / Ollama models
+models/
+.ollama/
