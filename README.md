@@ -1,130 +1,589 @@
-# Agentic Web Scraper
+# Agentic Web Scraper with Deep Research
 
-A high-precision, agent-driven web crawler that uses LLM, MCP, and Fetch MCP to extract main content and remove noise from web pages.
+A sophisticated, production-ready **MCP (Model Context Protocol) Server** built on **hexagonal architecture** principles, featuring intelligent crawling, content analysis, and comprehensive **deep research capabilities**.
 
-## Features
-- **Automatic metrics generation by LLM**: The LLM analyzes the root page and generates a list of important page types, categories, or features to prioritize for crawling.
-- **Page evaluation and selection based on metrics**: All URLs from the sitemap (or extracted links) are evaluated (by LLM or rule) using the generated metrics, and only relevant pages are crawled.
-- **LLM-powered cleaning**: Removes navigation, footers, ads, and other noise from Markdown content using LLM (no summarization, just noise removal).
-- **Fetch MCP integration**: Robust content retrieval via MCP server.
-- **Playwright-based JS rendering**: If sitemap.xml is missing, Playwright is used to render the root page and extract links from the fully rendered DOM.
-- **Markdown output**: Clean, readable content saved as a single Markdown file.
+## 🔌 **MCP Server Capabilities**
 
-## URL Evaluation Logic
+This server implements the **Model Context Protocol** with support for both **STDIO** and **SSE** (Server-Sent Events) protocols, providing seamless integration with AI assistants and applications.
 
-- **Scoring**:  
-  - Currently, URLs are classified into two categories: `HIGH` and `LOW`.
-  - If a URL contains any of the LLM-generated metric keywords that led by analysis of the root page, it is scored as `HIGH`. Otherwise, it is scored as `LOW`.
-  - There is **no upper limit** on the number of URLs in each category; all matching URLs are scored as `HIGH`.
-  - The system does not currently use a `MEDIUM` score, but this can be extended in the future.
-- **Selection**:  
-  - Only URLs scored as `HIGH` are crawled and processed for content extraction and cleaning.
+### 🚀 MCP Protocol Support
 
-## Prerequisites
-- [uv](https://docs.astral.sh/uv/) and `uvx` must be available in your environment.
-  - `uv` is a modern Python package manager and runner.
-  - `uvx` allows running CLI tools (like `mcp-server-fetch` and Playwright) without manual installation; uvx will fetch and run them automatically as needed.
-- No need to manually install `mcp-server-fetch` or Playwright browser binaries if using uv/uvx.
-- **Dependencies**:  
-  - See `requirements.txt` (install with `uv pip install -r requirements.txt`)
-  - After installing, run:  
-    ```bash
-    uvx playwright install chromium
-    ```
+**Dual Protocol Implementation** - Choose the best protocol for your use case:
 
-## Usage
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/KunihiroS/Agentic-web-scraper.git
-   cd Agentic-web-scraper
-   ```
-2. Install dependencies:
-   ```bash
-   uv pip install -r requirements.txt
-   uvx playwright install chromium
-   ```
-3. Configure your MCP server and API keys as needed (see `fastagent.config.yaml`)
-4. Run the crawler (specify the root URL as an argument or interactively):
-   ```bash
-   uv run agent.py https://fast-agent.ai/
-   ```
-5. The cleaned content will be saved to `site_crawl_result.md`
+- **📡 MCP STDIO**: Direct stdin/stdout communication for local AI assistants (Claude Desktop, etc.)
+- **🌐 MCP SSE**: Server-Sent Events for web-based AI applications and browser integration
+- **🔧 Tool Integration**: Rich set of tools for web scraping and research across both protocols
+- **📊 Structured Responses**: JSON, XML, and Markdown output formats on both STDIO and SSE
+- **🤖 AI Assistant Ready**: Plug-and-play with Claude, ChatGPT, and other AI systems via either protocol
 
-## Architecture
-```mermaid
-flowchart TD
-    A["User provides root URL"] --> B["fetch_sitemap_urls: Get sitemap.xml"]
-    B --> C["Extract all URLs"]
-    C --> D["Fetch root page Markdown (content_fetcher_agent)"]
-    D --> E["LLM generates evaluation metrics (metrics_generator_agent)"]
-    E --> F["Evaluate all URLs with metrics (url_evaluator_agent)"]
-    F --> G["For each selected URL, fetch Markdown (content_fetcher_agent)"]
-    G --> H["LLM noise removal (content_cleaner_agent)"]
-    H --> I["Save cleaned Markdown"]
-    I --> J{"More URLs?"}
-    J -- "Yes" --> G
-    J -- "No" --> K["site_crawl_result.md complete"]
+### 🛠️ MCP Tools Available
+
+| Tool | Description | Protocol Support |
+|------|-------------|------------------|
+| `scrape_url` | Extract content from single URLs | STDIO, SSE |
+| `scrape_multiple_urls` | Batch process multiple URLs | STDIO, SSE |
+| `start_research` | Begin deep research project | STDIO, SSE |
+| `research_interactive` | Interactive research session | STDIO, SSE |
+| `list_research_projects` | List all research projects | STDIO, SSE |
+| `export_research_report` | Generate research reports | STDIO, SSE |
+
+## 🔬 **Deep Research Feature**
+
+Transform your web scraping into intelligent research workflows with multi-stage analysis, evidence collection, source verification, and automated synthesis.
+
+### ✨ Deep Research Capabilities
+
+- **🎯 Multi-Stage Research**: Plan and execute comprehensive research workflows
+- **📊 Evidence Collection**: Extract, analyze, and cross-reference evidence from multiple sources
+- **🔍 Source Verification**: Automatically verify source reliability and authority
+- **📚 Citation Management**: Generate proper citations in APA, MLA, and Chicago formats
+- **🤖 AI-Powered Analysis**: Use local LLMs (Ollama) or cloud providers for intelligent analysis
+- **📋 Research Reports**: Generate comprehensive markdown reports with bibliography
+- **⚡ Interactive Research**: Real-time research sessions with evidence synthesis
+
+## 🚀 Quick Start
+
+### MCP Server Setup
+
+**Both STDIO and SSE protocols are fully supported** for maximum compatibility with AI assistants and web applications.
+
+#### STDIO Mode (Local AI Assistants)
+
+```bash
+# Clone and install
+git clone https://github.com/your-org/agentic-web-scraper.git
+cd agentic-web-scraper
+uv venv && source .venv/bin/activate
+uv pip install -r requirements.txt
+
+# Run MCP server via STDIO
+python mcp_server.py --stdio
 ```
 
-## Technology Stack
-- [fast-agent](https://fast-agent.ai/) for agent orchestration and MCP integration
-- [uv](https://docs.astral.sh/uv/) and `uvx` for dependency and CLI tool management
-- [playwright](https://playwright.dev/python/) for JavaScript rendering and dynamic link extraction
+#### SSE Mode (Web Applications)
 
-## License
-MIT
+```bash
+# Run MCP server with SSE
+python mcp_server.py --sse --port 8000 --host localhost
+
+# Server available at: http://localhost:8000/sse
+```
+
+### Claude Desktop Integration
+
+Add to your Claude Desktop config:
+
+```json
+{
+  "mcpServers": {
+    "agentic-web-scraper": {
+      "command": "python",
+      "args": ["path/to/agentic-web-scraper/mcp_server.py", "--stdio"],
+      "env": {
+        "PYTHONPATH": "path/to/agentic-web-scraper"
+      }
+    }
+  }
+}
+```
+
+### Basic Usage Examples
+
+#### Simple Web Scraping via MCP
+
+```python
+# Via MCP tool call
+{
+  "tool": "scrape_url",
+  "arguments": {
+    "url": "https://example.com",
+    "output_format": "markdown",
+    "extract_links": true,
+    "max_content_length": 10000
+  }
+}
+```
+
+#### Deep Research via MCP
+
+```python
+# Start research project
+{
+  "tool": "start_research",
+  "arguments": {
+    "research_question": "What are the latest trends in AI development?",
+    "title": "AI Trends 2024 Research",
+    "initial_urls": [
+      "https://ai.google/research/",
+      "https://openai.com/research/"
+    ],
+    "max_sources": 10,
+    "include_contradictions": true
+  }
+}
+```
+
+#### Interactive Research Session
+
+```python
+# Interactive research
+{
+  "tool": "research_interactive",
+  "arguments": {
+    "question": "How does quantum computing impact cryptography?",
+    "depth": "comprehensive",
+    "format": "markdown"
+  }
+}
+```
+
+## 🏗️ Architecture Overview
+
+### MCP Server Architecture
+
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   AI Assistant  │    │   Web Client     │    │   Local CLI     │
+│   (Claude, etc) │    │   (Browser)      │    │   (Terminal)    │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+         │                       │                       │
+    MCP STDIO              MCP SSE               Direct Access
+         │                       │                       │
+┌─────────────────────────────────────────────────────────────────┐
+│                      MCP Server Layer                          │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │ Tool Registry   │  │ Protocol        │  │ Response        │ │
+│  │ & Validation    │  │ Handler         │  │ Formatter       │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+         │                       │                       │
+┌─────────────────────────────────────────────────────────────────┐
+│                     Application Layer                          │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │ CrawlSession    │  │ DeepResearch    │  │ Export          │ │
+│  │ UseCase         │  │ UseCase         │  │ UseCase         │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+         │                       │                       │
+┌─────────────────────────────────────────────────────────────────┐
+│                      Domain Layer                              │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │ CrawlSession    │  │ ResearchProject │  │ Evidence        │ │
+│  │ PageContent     │  │ ResearchStage   │  │ Citation        │ │
+│  │ CrawlMetrics    │  │ Evidence Types  │  │ Research Status │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+         │                       │                       │
+┌─────────────────────────────────────────────────────────────────┐
+│                    Infrastructure Layer                        │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │ Web Adapters    │  │ LLM Adapters    │  │ Storage         │ │
+│  │ • HTTP/Fetch    │  │ • Ollama        │  │ • JSON Files    │ │
+│  │ • Playwright    │  │ • FastAgent     │  │ • Research DB   │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## 📡 MCP Tool Reference
+
+### Core Scraping Tools
+
+#### `scrape_url`
+
+Extract content from a single URL with intelligent parsing.
+
+**Arguments:**
+
+- `url` (string, required): Target URL to scrape
+- `output_format` (string): "json" | "xml" | "markdown" (default: "json")
+- `content_type` (string): "html" | "json" | "text" (default: "html")
+- `extract_links` (boolean): Whether to extract page links (default: false)
+- `max_content_length` (integer): Maximum content length to process
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "url": "https://example.com",
+    "title": "Example Domain",
+    "content": "<!DOCTYPE html>...",
+    "content_length": 1256,
+    "quality_score": 0.85,
+    "links": [...],
+    "metadata": {
+      "status_code": 200,
+      "response_time_ms": 234,
+      "fetch_timestamp": "2024-01-15T10:30:00Z"
+    }
+  }
+}
+```
+
+#### `scrape_multiple_urls`
+
+Batch process multiple URLs with concurrent execution.
+
+**Arguments:**
+
+- `urls` (array[string], required): List of URLs to scrape
+- `output_format` (string): Output format for results
+- `concurrent_limit` (integer): Max concurrent requests (default: 5)
+- `timeout` (integer): Request timeout in seconds (default: 30)
+
+### Research Tools
+
+#### `start_research`
+
+Begin a comprehensive research project with multi-stage analysis.
+
+**Arguments:**
+
+- `research_question` (string, required): Main research question
+- `title` (string): Project title
+- `description` (string): Project description
+- `initial_urls` (array[string]): Starting URLs for research
+- `max_sources` (integer): Maximum sources per stage (default: 8)
+- `include_contradictions` (boolean): Include contradicting evidence (default: true)
+- `citation_format` (string): "apa" | "mla" | "chicago" (default: "apa")
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "project": {
+    "project_id": "proj_123456",
+    "title": "AI Development Trends Research",
+    "status": "completed",
+    "confidence_level": 0.87,
+    "evidence_count": 15,
+    "stages_completed": 5,
+    "findings": "Comprehensive research summary...",
+    "created_at": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+#### `research_interactive`
+
+Conduct real-time interactive research with immediate results.
+
+**Arguments:**
+
+- `question` (string, required): Research question
+- `depth` (string): "quick" | "standard" | "comprehensive" (default: "standard")
+- `format` (string): Response format
+- `max_sources` (integer): Sources to analyze
+
+#### `list_research_projects`
+
+List all research projects with metadata.
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "projects": [
+    {
+      "project_id": "proj_123",
+      "title": "AI Trends Research",
+      "status": "completed",
+      "evidence_count": 15,
+      "confidence_level": 0.87,
+      "created_at": "2024-01-15T10:30:00Z"
+    }
+  ]
+}
+```
+
+#### `export_research_report`
+
+Generate detailed research reports in various formats.
+
+**Arguments:**
+
+- `project_id` (string, required): Project to export
+- `format` (string): "markdown" | "html" | "pdf" (default: "markdown")
+- `include_bibliography` (boolean): Include citations (default: true)
+- `include_evidence` (boolean): Include evidence details (default: true)
+
+## 🔧 Configuration
+
+### MCP Server Configuration
+
+```python
+# mcp_server.py configuration
+MCP_CONFIG = {
+    "server_name": "agentic-web-scraper",
+    "version": "1.0.0",
+    "protocols": ["stdio", "sse"],
+    "tools": [
+        "scrape_url",
+        "scrape_multiple_urls",
+        "start_research",
+        "research_interactive",
+        "list_research_projects",
+        "export_research_report"
+    ]
+}
+```
+
+### Environment Variables
+
+```bash
+# Web scraping settings
+export WEB_SCRAPER_USER_AGENT="Agentic-Web-Scraper/1.0"
+export WEB_SCRAPER_TIMEOUT=30
+export MAX_CONTENT_LENGTH=1048576
+
+# MCP Server settings
+export MCP_SERVER_HOST=localhost
+export MCP_SERVER_PORT=8000
+export MCP_ENABLE_CORS=true
+
+# LLM settings
+export LLM_PROVIDER=ollama
+export LLM_MODEL=llama3
+export LLM_BASE_URL=http://localhost:11434
+
+# Research settings
+export RESEARCH_MAX_SOURCES=10
+export RESEARCH_MIN_EVIDENCE=3
+export RESEARCH_AUTO_EXPAND=true
+```
+
+### Research Configuration
+
+```python
+from core.domain.models import ResearchConfig
+
+config = ResearchConfig(
+    max_sources_per_stage=10,        # Sources to analyze per stage
+    min_evidence_threshold=5,        # Minimum evidence pieces required
+    cross_reference_threshold=0.7,   # Similarity threshold for cross-referencing
+    auto_expand_topics=True,         # Automatically discover related topics
+    include_contradicting_evidence=True,  # Include conflicting evidence
+    citation_format="apa",           # Bibliography format (apa, mla, chicago)
+    max_research_depth=5             # Maximum research depth
+)
+```
+
+## 🚀 AI Assistant Integration
+
+### Claude Desktop
+
+```json
+{
+  "mcpServers": {
+    "agentic-web-scraper": {
+      "command": "python",
+      "args": ["mcp_server.py", "--stdio"],
+      "env": {
+        "PYTHONPATH": ".",
+        "LLM_PROVIDER": "ollama"
+      }
+    }
+  }
+}
+```
+
+### ChatGPT Plugin
+
+```json
+{
+  "name": "Agentic Web Scraper",
+  "description": "Advanced web scraping and research capabilities",
+  "mcp_endpoint": "http://localhost:8000/sse",
+  "tools": ["scrape_url", "start_research", "research_interactive"]
+}
+```
+
+### Custom Integration
+
+```python
+import asyncio
+from mcp_client import MCPClient
+
+async def use_research_tools():
+    # Connect to MCP server
+    client = MCPClient("stdio", command=["python", "mcp_server.py", "--stdio"])
+
+    # Start research
+    result = await client.call_tool("start_research", {
+        "research_question": "What are the benefits of renewable energy?",
+        "initial_urls": ["https://irena.org/", "https://www.iea.org/"],
+        "max_sources": 8
+    })
+
+    print(f"Research completed: {result['project']['project_id']}")
+
+    # Get detailed report
+    report = await client.call_tool("export_research_report", {
+        "project_id": result['project']['project_id'],
+        "format": "markdown"
+    })
+```
+
+## 📊 Usage Examples
+
+### Academic Research via MCP
+
+```python
+# Research tool call
+{
+  "tool": "start_research",
+  "arguments": {
+    "research_question": "How is machine learning being applied in healthcare?",
+    "title": "ML in Healthcare Research",
+    "description": "Comprehensive analysis of ML applications in medical diagnosis and patient care",
+    "initial_urls": [
+      "https://www.nature.com/subjects/machine-learning",
+      "https://pubmed.ncbi.nlm.nih.gov/",
+      "https://www.nejm.org/"
+    ],
+    "max_sources": 12,
+    "citation_format": "apa"
+  }
+}
+```
+
+### Market Research via MCP
+
+```python
+# Interactive research
+{
+  "tool": "research_interactive",
+  "arguments": {
+    "question": "What are the emerging trends in sustainable technology startups?",
+    "depth": "comprehensive",
+    "format": "markdown"
+  }
+}
+```
+
+### Technology Assessment
+
+```python
+# Multi-stage research
+{
+  "tool": "start_research",
+  "arguments": {
+    "research_question": "What are the current applications and limitations of blockchain technology?",
+    "initial_urls": [
+      "https://ethereum.org/",
+      "https://bitcoin.org/",
+      "https://hyperledger.org/"
+    ],
+    "include_contradictions": true,
+    "max_sources": 15
+  }
+}
+```
+
+## 📈 Performance and Reliability
+
+### MCP Protocol Performance
+
+- **STDIO**: Direct process communication, minimal latency
+- **SSE**: Web-compatible, supports real-time updates
+- **Concurrent Processing**: Handle multiple tool calls simultaneously
+- **Error Handling**: Robust error recovery and reporting
+
+### Research Quality Metrics
+
+- **Source Verification**: Domain authority and content quality assessment
+- **Evidence Scoring**: Relevance and confidence metrics (0.0-1.0)
+- **Cross-Reference Validation**: Multi-source verification
+- **Contradiction Detection**: Identify conflicting information
+
+### Scaling Considerations
+
+- **Batch Processing**: Efficient handling of multiple URLs
+- **Memory Management**: Optimized content processing
+- **Rate Limiting**: Respectful crawling patterns
+- **Caching**: Intelligent content and result caching
+
+## 🔮 Advanced Features
+
+### Custom Tool Development
+
+```python
+@mcp_tool("custom_research_tool")
+async def custom_research(
+    domain: str,
+    focus_area: str,
+    depth: int = 3
+) -> Dict[str, Any]:
+    """Custom research tool for specific domains"""
+    # Implement custom research logic
+    pass
+```
+
+### Research Workflow Automation
+
+```python
+# Automated research pipeline
+{
+  "tool": "start_research",
+  "arguments": {
+    "research_question": "AI safety measures in autonomous vehicles",
+    "workflow": "academic",
+    "auto_expand": true,
+    "follow_citations": true,
+    "verify_claims": true
+  }
+}
+```
+
+### Integration with Knowledge Graphs
+
+```python
+# Knowledge graph enhancement
+{
+  "tool": "research_with_kg",
+  "arguments": {
+    "question": "Climate change mitigation strategies",
+    "kg_sources": ["wikidata", "dbpedia"],
+    "relationship_depth": 2
+  }
+}
+```
+
+## 🛡️ Security and Privacy
+
+### Data Protection
+
+- **Local Processing**: Keep sensitive research data private
+- **Configurable Storage**: Control where data is stored
+- **Secure Communications**: Encrypted MCP protocol support
+- **Access Controls**: Configurable tool access permissions
+
+### Responsible Scraping
+
+- **Rate Limiting**: Respect website resources
+- **Robots.txt Compliance**: Honor site scraping policies
+- **User Agent Identification**: Transparent scraping identification
+- **Error Handling**: Graceful failure and retry logic
+
+## 🤝 Contributing
+
+We welcome contributions to enhance both MCP capabilities and research features:
+
+1. **MCP Protocol**: Improve STDIO/SSE implementations
+2. **Tool Development**: Add new research and scraping tools
+3. **AI Integration**: Enhance assistant compatibility
+4. **Research Algorithms**: Improve evidence analysis and synthesis
+5. **Documentation**: Expand usage examples and guides
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 改修計画（今後の改善方針・具体案）
-
-1. **対象URLリストの保存と進捗管理**
-   - クロール対象となる全URLを最初に抽出し、`crawl_targets_{hash}.json` などのJSONファイルに保存。
-   - JSON構造例:
-     ```json
-     [
-       {"url": "https://example.com/page1", "status": "pending", "error": null},
-       {"url": "https://example.com/page2", "status": "success", "error": null},
-       {"url": "https://example.com/page3", "status": "failed", "error": "TimeoutError"}
-     ]
-     ```
-   - 各URLの状態（pending/success/failed）やエラー内容を随時更新し、上書き保存。
-
-2. **作業量見積もり・ユーザー確認フロー**
-   - URLリストの総件数、サンプル（最初の5件）、推定作業時間（例: 1件あたり平均5秒×件数）、推定トークン消費量（例: 1件あたり平均3000tokens×件数）をユーザーに表示。
-   - 例:  
-     ```
-     対象URL数: 120件
-     サンプル: https://example.com/page1, ...
-     推定作業時間: 約10分
-     推定トークン消費: 約36万tokens
-     ```
-   - ユーザーに「全件実行」「やめる」「一部のみ実行」などの選択肢をダイアログやCLIプロンプトで提示。
-
-3. **agent（LLM）による優先度提案とユーザー判断ループ**
-   - 「一部のみ実行」選択時、agent（LLM）がURLリストやページタイトル・パス・メタ情報等を分析し、優先度の高いURLや推奨範囲（例: ドキュメント系、APIリファレンス系など）を提案。
-   - 例:  
-     ```
-     LLM提案: 「API」「Guide」「Reference」を含むページを優先的に処理することを推奨します。
-     推奨URL: https://example.com/api, https://example.com/guide, ...
-     ```
-   - ユーザーは提案を受けて範囲を調整・再確認できる。納得いくまでこのループを繰り返し可能。
-
-4. **最終確認と安全な意思決定**
-   - 最終的に「この内容で実行しますか？（Y/N）」と明示的に確認。
-   - Yで実行、Nで中断。最大処理件数やサンプル実行などの追加オプションも選択可能。
-
-5. **逐次書き出し・エラー記録・レジューム**
-   - 各URLの処理が終わるたびに `site_crawl_result.md` にappendで追記。
-   - 失敗時はエラー内容もMarkdownに記録（例: `# URL\n\n[ERROR] TimeoutError`）。
-   - 途中中断時も進捗JSONを参照し、「status: pending/failed」のURLのみ再開対象とする。
-   - レジューム時の手順例:
-     1. `crawl_targets_{hash}.json` を読み込む
-     2. statusがpending/failedのURLのみ再処理
-     3. 成功したらstatusをsuccessに、失敗したらfailed+errorに更新
-
-6. **柔軟な実行範囲選択と安全な運用**
-   - 必要に応じて「最大処理件数」「サンプルのみ実行」などのオプションをCLIやUIで指定可能。
-   - APIコストや障害時のリカバリを容易にし、ユーザーの納得感ある運用を実現。
-
----
+**🔌 Ready to integrate with your AI assistant? Connect via MCP STDIO or SSE and start intelligent research today! 🔬✨**
