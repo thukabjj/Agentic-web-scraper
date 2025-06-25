@@ -630,6 +630,7 @@ pytest tests/test_mcp_sse.py -v
 **100% test success rate achieved** across all protocols and tools.
 
 ## 🤝 Contributing
+Thanks [KunihiroS](https://github.com/KunihiroS) to create the base project open source.
 
 We welcome contributions to enhance both MCP capabilities and research features:
 
