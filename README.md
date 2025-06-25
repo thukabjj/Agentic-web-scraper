@@ -103,9 +103,6 @@ uv pip install -r requirements.txt
 
 # Run the MCP server
 python mcp_server.py
-
-# Or run direct analysis
-python improved_test.py
 ```
 
 ## 🎮 **Usage Examples**
@@ -494,7 +491,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **Session analytics**: Per-session usage tracking
 - **Provider support**: Ollama, OpenAI, Anthropic, Perplexity
 
-## ✅ **COMPREHENSIVE VALIDATION - DECEMBER 2025**
+## ✅ **COMPREHENSIVE VALIDATION - DECEMBER 2023**
 
 ### 🎉 **All Systems Tested & Validated**
 
@@ -753,8 +750,8 @@ python mcp_server.py research-interactive \
 
 Options:
 
-- `--query`: (Required) Starting research query
-- `--context`: (Optional) Extra context for research
+- `--query`: (Required) Initial research question
+- `--context`: (Optional) Additional context for research
 - `--max-turns`: (Optional) Maximum interaction turns [default: 5]
 - `--save-transcript`: (Optional) Save conversation [default: true]
 
@@ -796,11 +793,15 @@ These options are available for all commands:
 
 ```bash
 python mcp_server.py <command> \
-  --verbose \                    # Enable verbose output
-  --output-file output.json \    # Save output to file
-  --log-level debug \           # Set log level (debug, info, warning, error)
-  --no-color                    # Disable colored output
+  --log-level debug \
+  --output-file result.json \
+  --quiet
 ```
+
+- `--log-level`: Logging level (debug, info, warning, error) [default: info]
+- `--output-file`: Save output to file instead of stdout
+- `--quiet`: Suppress all output except errors
+- `--help`: Show help message for any command
 
 ### **Environment Variables**
 
@@ -808,14 +809,17 @@ The following environment variables can be used to configure the tools:
 
 ```bash
 # API Configuration
-export MCP_HOST=localhost       # Server host [default: localhost]
-export MCP_PORT=3000           # Server port [default: 3000]
-export MCP_TIMEOUT=30          # Request timeout in seconds [default: 30]
+ANTHROPIC_API_KEY=your_api_key
+OPENAI_API_KEY=your_api_key
+PERPLEXITY_API_KEY=your_api_key
+OLLAMA_API_KEY=your_api_key
 
 # Logging Configuration
-export MCP_LOG_LEVEL=info      # Log level [default: info]
-export MCP_LOG_FILE=mcp.log    # Log file path
+LOG_LEVEL=info
+LOG_FILE=mcp_server.log
 
 # Storage Configuration
-export MCP_STORAGE_DIR=./storage  # Storage directory [default: ./storage]
+STORAGE_DIR=./storage
+CONTENT_DIR=./storage/content
+SESSIONS_DIR=./storage/sessions
 ```
