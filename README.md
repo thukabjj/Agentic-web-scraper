@@ -5,6 +5,7 @@ A sophisticated MCP (Model Context Protocol) server with advanced web scraping, 
 ## ✅ **VALIDATION STATUS - 100% COMPLETE**
 
 ### 🎉 **All Systems Validated and Operational**
+
 - ✅ **Python Environment**: Python 3.13.5, all dependencies working
 - ✅ **MCP Server**: All 8 tools functional across STDIO, SSE, and CLI protocols
 - ✅ **Web Scraping**: HTTP-based fetching with multiple output formats
@@ -13,7 +14,9 @@ A sophisticated MCP (Model Context Protocol) server with advanced web scraping, 
 - ✅ **Token Logging**: Comprehensive LLM usage tracking and analytics
 
 ### 📊 **Comprehensive Testing Results**
+
 All core functionality validated through systematic testing with Taskmaster:
+
 - **Environment Compatibility**: ✅ PASSED
 - **MCP Integration**: ✅ ALL PROTOCOLS WORKING
 - **Content Extraction**: ✅ MULTIPLE FORMATS SUPPORTED
@@ -24,6 +27,7 @@ All core functionality validated through systematic testing with Taskmaster:
 ## 🎯 **Key Features**
 
 ### 🔥 **Core Capabilities**
+
 - **Advanced Web Scraping**: Dynamic content loading with Playwright integration
 - **AI-Powered Analysis**: Intelligent content extraction and semantic analysis
 - **MCP Server Integration**: Full Model Context Protocol server implementation
@@ -32,6 +36,7 @@ All core functionality validated through systematic testing with Taskmaster:
 - **Performance Optimization**: Site-specific boost factors and intelligent scoring
 
 ### 🧠 **Advanced Content Analysis**
+
 - **Site-Specific Intelligence**: Custom patterns for each target website
 - **Question-Aware Extraction**: Dynamic content prioritization based on query type
 - **Semantic Relevance Scoring**: Advanced algorithms for content-question alignment
@@ -39,6 +44,7 @@ All core functionality validated through systematic testing with Taskmaster:
 - **Performance Boost System**: Up to 1.6x improvement for challenging sites
 
 ### 🌐 **Dynamic Content Support**
+
 - **JavaScript Rendering**: Full browser automation with Playwright
 - **Cookie Consent Handling**: Automatic cookie banner management
 - **Site-Specific Strategies**: Tailored waiting and extraction strategies
@@ -47,6 +53,7 @@ All core functionality validated through systematic testing with Taskmaster:
 ## 📊 **Performance Achievements**
 
 ### **Massive Performance Improvements**
+
 - **Overall Performance**: 57.8% → **85-90%** (+30-35% improvement)
 - **Galaxy.ai**: 6.0% → **75-85%** (12-14x improvement!)
 - **Musely.ai**: 33.8% → **75-85%** (2.2-2.5x improvement)
@@ -54,6 +61,7 @@ All core functionality validated through systematic testing with Taskmaster:
 - **Success Rate**: **100%** reliability across all AI tool sites
 
 ### **Production-Ready Quality**
+
 - **5-6 out of 6 scenarios** performing at production-grade levels
 - **Advanced semantic matching** with 85%+ accuracy
 - **Intelligent content extraction** with site-specific optimizations
@@ -62,25 +70,36 @@ All core functionality validated through systematic testing with Taskmaster:
 ## 🛠 **Installation & Setup**
 
 ### **Prerequisites**
+
 ```bash
 # Python 3.8+
 python --version
 
-# Install dependencies
-pip install -r requirements.txt
+# Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install dependencies with uv
+uv pip install -r requirements.txt
 
 # Optional: Install Playwright for dynamic content
 playwright install chromium
 ```
 
 ### **Quick Start**
+
 ```bash
 # Clone the repository
 git clone <repository-url>
 cd Agentic-web-scraper
 
-# Install dependencies
-pip install -r requirements.txt
+# Create and activate virtual environment with uv
+uv venv
+source .venv/bin/activate  # On Unix/macOS
+# OR
+.venv\Scripts\activate     # On Windows
+
+# Install dependencies with uv
+uv pip install -r requirements.txt
 
 # Run the MCP server
 python mcp_server.py
@@ -92,6 +111,7 @@ python improved_test.py
 ## 🎮 **Usage Examples**
 
 ### **1. MCP Server Integration**
+
 ```python
 # Start the MCP server
 python mcp_server.py
@@ -104,6 +124,7 @@ python mcp_server.py
 ```
 
 ### **2. Direct URL Analysis**
+
 ```python
 from improved_test import ImprovedAnalyzer
 
@@ -117,6 +138,7 @@ print(result['response'])
 ```
 
 ### **3. Comprehensive Testing**
+
 ```python
 # Run comprehensive scenario tests
 python comprehensive_scenario_test.py
@@ -126,6 +148,7 @@ python improved_test.py
 ```
 
 ### **4. Research CLI**
+
 ```bash
 # Interactive research session
 python research_cli.py
@@ -176,6 +199,7 @@ Agentic-web-scraper/
 ```
 
 ### **Key Technologies**
+
 - **Python 3.8+**: Core language
 - **BeautifulSoup4**: HTML parsing and content extraction
 - **Playwright**: Dynamic content and JavaScript rendering
@@ -186,6 +210,7 @@ Agentic-web-scraper/
 ## 🎯 **MCP Tools Available**
 
 ### **Content Analysis Tools**
+
 ```python
 # analyze_url - Advanced URL analysis with Q&A
 {
@@ -208,6 +233,7 @@ Agentic-web-scraper/
 ```
 
 ### **Research Tools**
+
 ```python
 # start_research - Begin research project
 {
@@ -229,6 +255,7 @@ Agentic-web-scraper/
 ## 🧪 **Testing & Validation**
 
 ### **Comprehensive Test Suite**
+
 ```bash
 # Run all tests
 python comprehensive_scenario_test.py
@@ -240,6 +267,7 @@ python comprehensive_scenario_test.py
 ```
 
 ### **Performance Benchmarks**
+
 ```python
 # Test Scenarios with Target Performance
 scenarios = [
@@ -267,6 +295,7 @@ scenarios = [
 ## 🔧 **Configuration**
 
 ### **Environment Variables**
+
 ```bash
 # LLM Configuration
 LLM_PROVIDER=anthropic  # or openai, ollama
@@ -283,6 +312,7 @@ BROWSER_HEADLESS=true
 ```
 
 ### **Site-Specific Configuration**
+
 ```python
 # Enhanced patterns for specific sites
 site_patterns = {
@@ -302,21 +332,25 @@ site_patterns = {
 ## 🚀 **Advanced Features**
 
 ### **1. Site-Specific Intelligence**
+
 - **Custom Extraction Patterns**: Tailored selectors for each target website
 - **Adaptive Boost Factors**: Performance multipliers for challenging sites
 - **Content Focus Optimization**: Site-specific content type prioritization
 
 ### **2. Question-Aware Analysis**
+
 - **Dynamic Content Prioritization**: Based on question type and intent
 - **Relevance-Scored Ranking**: Intelligent content ordering by relevance
 - **Context-Sensitive Weighting**: Adaptive importance scoring
 
 ### **3. Advanced Pattern Matching**
+
 - **5x More Sophisticated Regex**: Enhanced pattern complexity and accuracy
 - **Length-Optimized Extraction**: Content length optimization (25-350 chars)
 - **Context-Aware Filtering**: Intelligent noise reduction
 
 ### **4. Performance Boost System**
+
 ```python
 # Boost factors for different performance levels
 boost_factors = {
@@ -329,6 +363,7 @@ boost_factors = {
 ## 📈 **Performance Monitoring**
 
 ### **Metrics Tracked**
+
 - **Content Extraction Quality**: Multi-dimensional scoring
 - **Semantic Relevance**: Question-content alignment accuracy
 - **Response Completeness**: Content type coverage assessment
@@ -336,6 +371,7 @@ boost_factors = {
 - **Site-Specific Success Rates**: Per-domain performance tracking
 
 ### **Quality Indicators**
+
 ```python
 # Performance status indicators
 if performance >= 0.85:
@@ -351,12 +387,14 @@ else:
 ## 🛡 **Error Handling & Reliability**
 
 ### **Graceful Degradation**
+
 - **Playwright → HTTP Fallback**: Automatic fallback for dynamic content
 - **Multiple Extraction Strategies**: Redundant content extraction methods
 - **Robust Error Recovery**: Comprehensive exception handling
 - **Timeout Management**: Configurable timeouts with intelligent defaults
 
 ### **Content Validation**
+
 - **Length Validation**: Minimum/maximum content length checks
 - **Quality Scoring**: Multi-factor content quality assessment
 - **Relevance Filtering**: Question-content alignment validation
@@ -365,6 +403,7 @@ else:
 ## 🔮 **Future Enhancements**
 
 ### **Planned Improvements**
+
 - **🤖 Advanced LLM Integration**: Enhanced AI-powered content analysis
 - **🌍 Multi-Language Support**: International content extraction
 - **📊 Real-Time Analytics**: Live performance monitoring dashboard
@@ -372,6 +411,7 @@ else:
 - **🎯 Custom Site Training**: User-defined extraction patterns
 
 ### **Experimental Features**
+
 - **🧠 Neural Content Extraction**: ML-based content identification
 - **🔍 Semantic Search Integration**: Vector-based content matching
 - **📱 Mobile Content Optimization**: Mobile-specific extraction strategies
@@ -380,11 +420,20 @@ else:
 ## 🤝 **Contributing**
 
 ### **Development Setup**
+
 ```bash
 # Clone and setup
 git clone <repository-url>
 cd Agentic-web-scraper
-pip install -r requirements.txt
+
+# Create and activate virtual environment
+uv venv
+source .venv/bin/activate  # On Unix/macOS
+# OR
+.venv\Scripts\activate     # On Windows
+
+# Install dependencies with uv
+uv pip install -r requirements.txt
 
 # Run tests
 python comprehensive_scenario_test.py
@@ -396,6 +445,7 @@ flake8 .
 ```
 
 ### **Adding New Sites**
+
 ```python
 # Add to site_patterns in ImprovedContentAnalyzer
 'new-site.com': {
@@ -422,6 +472,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🛠 **Complete MCP Tool Reference**
 
 ### **Available Tools (8 Total)**
+
 ```json
 {
   "scrape_url": "Extract content from any URL with multiple output formats",
@@ -436,6 +487,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ```
 
 ### **Token Monitoring & Analytics**
+
 - **Real-time tracking**: All LLM operations monitored
 - **Cost analysis**: Provider-specific cost breakdown
 - **Performance metrics**: Tokens/second, operation duration
@@ -445,44 +497,52 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## ✅ **COMPREHENSIVE VALIDATION - DECEMBER 2025**
 
 ### 🎉 **All Systems Tested & Validated**
+
 **Systematic validation completed using Taskmaster project management:**
 
 #### **Task 1: Environment Validation** ✅ PASSED
+
 - Python 3.13.5 with virtual environment active
 - All dependencies verified (httpx 0.28.1, beautifulsoup4, pydantic 2.11.7)
 - All project modules import successfully
 
 #### **Task 2: MCP Server Functionality** ✅ PASSED
+
 - All 3 protocols working: STDIO, SSE, CLI
 - All 8 tools registered and functional
 - Integration tests pass for all protocols
 - Server responses properly structured
 
 #### **Task 3: Web Scraping Capabilities** ✅ PASSED
+
 - HTTP-based fetching with httpx working perfectly
 - Multiple output formats (JSON, Markdown) functional
 - Error handling works for non-existent URLs
 - Concurrent scraping operational
 
 #### **Task 4: Research & Analysis Features** ✅ PASSED
+
 - analyze_url functionality working perfectly
 - Question-aware content analysis operational
 - Token metrics system functional
 - Intelligent pattern matching working
 
 #### **Task 5: Storage & Data Persistence** ✅ PASSED
+
 - JSON storage adapter working correctly
 - All required directory structures exist
 - Export functionality operational
 - Data integrity verified
 
 #### **Task 6: Token Logging System** ✅ PASSED
+
 - Comprehensive LLM usage tracking active
 - Multi-provider support (Ollama, OpenAI, Anthropic, Perplexity)
 - Session and global analytics working
 - MCP integration of token metrics operational
 
 ### 📊 **Validation Summary**
+
 - **Total Tasks**: 6/6 Complete (100%)
 - **Success Rate**: 100% across all components
 - **Test Coverage**: Full system validation
