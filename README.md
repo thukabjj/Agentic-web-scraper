@@ -677,3 +677,145 @@ curl -X POST http://localhost:3000/rpc \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc": "2.0", "method": "scrape_url", "params": {"url": "https://example.com"}, "id": 1}'
 ```
+
+## 📟 **CLI Parameters Reference**
+
+The tools can also be used directly from the command line. Here's how to use each tool in CLI mode:
+
+### **Web Scraping Commands**
+
+#### `scrape-url`
+
+```bash
+python mcp_server.py scrape-url \
+  --url "https://example.com" \
+  --output-format json \
+  --content-type html \
+  --extract-links \
+  --max-content-length 50000
+```
+
+Options:
+
+- `--url`: (Required) Target URL to scrape
+- `--output-format`: (Optional) Output format: json, xml, markdown [default: json]
+- `--content-type`: (Optional) Expected content type: html, json, text [default: html]
+- `--extract-links`: (Optional) Extract page links [default: false]
+- `--max-content-length`: (Optional) Maximum content length to process
+
+#### `scrape-urls`
+
+```bash
+python mcp_server.py scrape-urls \
+  --urls "https://example1.com,https://example2.com" \
+  --output-format json \
+  --concurrent-limit 5 \
+  --timeout 30
+```
+
+Options:
+
+- `--urls`: (Required) Comma-separated list of URLs to scrape
+- `--output-format`: (Optional) Output format: json, xml, markdown [default: json]
+- `--concurrent-limit`: (Optional) Maximum concurrent requests [default: 5]
+- `--timeout`: (Optional) Request timeout in seconds [default: 30]
+
+### **Research Commands**
+
+#### `start-research`
+
+```bash
+python mcp_server.py start-research \
+  --query "Research topic or question" \
+  --urls "https://source1.com,https://source2.com" \
+  --project-id custom_id \
+  --depth 2 \
+  --save-evidence
+```
+
+Options:
+
+- `--query`: (Required) Main research query
+- `--urls`: (Required) Comma-separated list of URLs to analyze
+- `--project-id`: (Optional) Custom project identifier
+- `--depth`: (Optional) Research depth level (1-3) [default: 1]
+- `--save-evidence`: (Optional) Save evidence files [default: true]
+
+#### `research-interactive`
+
+```bash
+python mcp_server.py research-interactive \
+  --query "Initial research question" \
+  --context "Additional context" \
+  --max-turns 5 \
+  --save-transcript
+```
+
+Options:
+
+- `--query`: (Required) Starting research query
+- `--context`: (Optional) Extra context for research
+- `--max-turns`: (Optional) Maximum interaction turns [default: 5]
+- `--save-transcript`: (Optional) Save conversation [default: true]
+
+#### `list-projects`
+
+```bash
+python mcp_server.py list-projects \
+  --status all \
+  --limit 10 \
+  --sort-by date
+```
+
+Options:
+
+- `--status`: (Optional) Filter by status: active, completed, all [default: all]
+- `--limit`: (Optional) Maximum projects to return [default: 50]
+- `--sort-by`: (Optional) Sort field: date, status, id [default: date]
+
+#### `export-report`
+
+```bash
+python mcp_server.py export-report \
+  --project-id project_123 \
+  --format markdown \
+  --include-evidence \
+  --template default
+```
+
+Options:
+
+- `--project-id`: (Required) Project ID to export
+- `--format`: (Optional) Output format: markdown, json, html [default: markdown]
+- `--include-evidence`: (Optional) Include evidence files [default: true]
+- `--template`: (Optional) Report template to use [default: default]
+
+### **Global Options**
+
+These options are available for all commands:
+
+```bash
+python mcp_server.py <command> \
+  --verbose \                    # Enable verbose output
+  --output-file output.json \    # Save output to file
+  --log-level debug \           # Set log level (debug, info, warning, error)
+  --no-color                    # Disable colored output
+```
+
+### **Environment Variables**
+
+The following environment variables can be used to configure the tools:
+
+```bash
+# API Configuration
+export MCP_HOST=localhost       # Server host [default: localhost]
+export MCP_PORT=3000           # Server port [default: 3000]
+export MCP_TIMEOUT=30          # Request timeout in seconds [default: 30]
+
+# Logging Configuration
+export MCP_LOG_LEVEL=info      # Log level [default: info]
+export MCP_LOG_FILE=mcp.log    # Log file path
+
+# Storage Configuration
+export MCP_STORAGE_DIR=./storage  # Storage directory [default: ./storage]
+```
