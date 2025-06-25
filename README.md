@@ -89,7 +89,7 @@ playwright install chromium
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/thukabjj/Agentic-web-scraper.git
 cd Agentic-web-scraper
 
 # Create and activate virtual environment with uv
