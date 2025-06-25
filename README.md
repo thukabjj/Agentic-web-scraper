@@ -551,3 +551,129 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ---
 
 **✅ Production-ready with 100% validation coverage! All systems operational and tested! 🚀**
+
+## 🛠️ **Tool Parameters Reference**
+
+### **Web Scraping Tools**
+
+#### `scrape_url`
+
+Extract content from a single URL.
+
+```json
+{
+  "method": "scrape_url",
+  "params": {
+    "url": "https://example.com",           // Required: Target URL to scrape
+    "output_format": "json",                // Optional: "json", "xml", or "markdown" (default: "json")
+    "content_type": "html",                 // Optional: "html", "json", or "text" (default: "html")
+    "extract_links": false,                 // Optional: Extract page links (default: false)
+    "max_content_length": 50000             // Optional: Maximum content length to process
+  }
+}
+```
+
+#### `scrape_multiple_urls`
+
+Batch process multiple URLs concurrently.
+
+```json
+{
+  "method": "scrape_multiple_urls",
+  "params": {
+    "urls": ["https://example1.com", "https://example2.com"],  // Required: List of URLs to scrape
+    "output_format": "json",                                   // Optional: "json", "xml", or "markdown" (default: "json")
+    "concurrent_limit": 5,                                     // Optional: Maximum concurrent requests (default: 5)
+    "timeout": 30                                             // Optional: Request timeout in seconds (default: 30)
+  }
+}
+```
+
+### **Research Tools**
+
+#### `start_research`
+
+Start a new research project with specific queries and URLs.
+
+```json
+{
+  "method": "start_research",
+  "params": {
+    "query": "Research topic or question",          // Required: Main research query
+    "urls": ["https://source1.com"],               // Required: List of URLs to analyze
+    "project_id": "custom_id",                     // Optional: Custom project identifier
+    "depth": 2,                                    // Optional: Research depth level (1-3, default: 1)
+    "save_evidence": true                          // Optional: Save evidence files (default: true)
+  }
+}
+```
+
+#### `research_interactive`
+
+Start an interactive research session with follow-up questions.
+
+```json
+{
+  "method": "research_interactive",
+  "params": {
+    "query": "Initial research question",          // Required: Starting research query
+    "context": "Additional context",               // Optional: Extra context for research
+    "max_turns": 5,                               // Optional: Maximum interaction turns (default: 5)
+    "save_transcript": true                        // Optional: Save conversation (default: true)
+  }
+}
+```
+
+#### `list_research_projects`
+
+List all research projects and their status.
+
+```json
+{
+  "method": "list_research_projects",
+  "params": {
+    "status": "all",                              // Optional: Filter by status ("active", "completed", "all")
+    "limit": 10,                                  // Optional: Maximum projects to return (default: 50)
+    "sort_by": "date"                             // Optional: Sort field ("date", "status", "id")
+  }
+}
+```
+
+#### `export_research_report`
+
+Generate a comprehensive report from a research project.
+
+```json
+{
+  "method": "export_research_report",
+  "params": {
+    "project_id": "project_123",                  // Required: Project ID to export
+    "format": "markdown",                         // Optional: "markdown", "json", "html" (default: "markdown")
+    "include_evidence": true,                     // Optional: Include evidence files (default: true)
+    "template": "default"                         // Optional: Report template to use (default: "default")
+  }
+}
+```
+
+### **Using the Tools**
+
+All tools follow the JSON-RPC 2.0 format:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "method_name",
+  "params": {
+    // method-specific parameters
+  },
+  "id": 1
+}
+```
+
+Example usage with curl:
+
+```bash
+curl -X POST http://localhost:3000/rpc \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "method": "scrape_url", "params": {"url": "https://example.com"}, "id": 1}'
+```
