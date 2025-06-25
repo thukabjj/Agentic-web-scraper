@@ -31,6 +31,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 from urllib.parse import urljoin, urlparse
 
+from adapters.logging.token_logger import get_token_logger, log_llm_usage
 from adapters.storage.json_storage import JsonStorageAdapter
 from adapters.web.fetch_adapter import FetchAdapter
 from config.settings import WebScraperSettings, settings
@@ -48,7 +49,9 @@ MCP_SERVER_INFO = {
         "start_research",
         "research_interactive",
         "list_research_projects",
-        "export_research_report"
+        "export_research_report",
+        "analyze_url",
+        "get_token_metrics"
     ]
 }
 
@@ -65,7 +68,17 @@ class WebScraperMCPServer:
     def __init__(self):
         self.settings = WebScraperSettings.from_env()
         self.web_adapter = FetchAdapter()
+        # Initialize Playwright adapter for JS-heavy sites
+        try:
+            from adapters.web.playwright_adapter import PlaywrightAdapter
+            self.playwright_adapter = PlaywrightAdapter()
+            print("✅ Playwright adapter loaded for JavaScript support")
+        except ImportError:
+            self.playwright_adapter = None
+            print("⚠️ Playwright not available - JS sites may have limited data")
+
         self.storage = JsonStorageAdapter(settings.storage_path)
+        self.token_logger = get_token_logger()
         self.tools = self._register_tools()
         print("✅ MCP Web Scraper Server initialized")
 
@@ -254,6 +267,67 @@ class WebScraperMCPServer:
                     },
                     "required": ["project_id"]
                 }
+            },
+            "analyze_url": {
+                "description": (
+                    "Scrape content from a specific URL and answer a question about it"
+                ),
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "url": {
+                            "type": "string",
+                            "description": "URL to scrape and analyze"
+                        },
+                        "question": {
+                            "type": "string",
+                            "description": "Question to answer about the URL content"
+                        },
+                        "output_format": {
+                            "type": "string",
+                            "enum": ["json", "markdown"],
+                            "default": "markdown",
+                            "description": "Response format"
+                        },
+                        "content_type": {
+                            "type": "string",
+                            "enum": ["html", "json", "text"],
+                            "default": "html",
+                            "description": "Expected content type"
+                        },
+                        "extract_links": {
+                            "type": "boolean",
+                            "default": False,
+                            "description": (
+                                "Whether to extract and analyze page links"
+                            )
+                        }
+                    },
+                    "required": ["url", "question"]
+                }
+            },
+            "get_token_metrics": {
+                "description": "Get token usage metrics and analytics",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "session_id": {
+                            "type": "string",
+                            "description": "Optional session ID to get metrics for specific session"
+                        },
+                        "report_type": {
+                            "type": "string",
+                            "enum": ["summary", "detailed", "recent"],
+                            "default": "summary",
+                            "description": "Type of report to generate"
+                        },
+                        "limit": {
+                            "type": "integer",
+                            "default": 100,
+                            "description": "Number of recent records to include"
+                        }
+                    }
+                }
             }
         }
 
@@ -339,6 +413,10 @@ class WebScraperMCPServer:
                 result = await self.list_research_projects(**arguments)
             elif tool_name == "export_research_report":
                 result = await self.export_research_report(**arguments)
+            elif tool_name == "analyze_url":
+                result = await self.analyze_url(**arguments)
+            elif tool_name == "get_token_metrics":
+                result = await self.get_token_metrics(**arguments)
             else:
                 raise ValueError(f"Tool implementation not found: {tool_name}")
 
@@ -610,6 +688,149 @@ Comprehensive analysis reveals significant advances in AI development...
             "export_timestamp": datetime.now().isoformat()
         }
 
+    async def analyze_url(
+        self,
+        url: str,
+        question: str,
+        output_format: str = "markdown",
+        content_type: str = "html",
+        extract_links: bool = False
+    ) -> Dict[str, Any]:
+        """Analyze content from a specific URL and answer a question about it"""
+        try:
+            print(f"🚀 Analyzing {url}...")
+
+            # Check if this is a JavaScript-heavy or dynamic content site
+            js_sites = ['finance.yahoo.com', 'google.com/finance', 'bloomberg.com', 'marketwatch.com']
+            dynamic_sites = ['medium.com', 'dev.to', 'hashnode.com', 'substack.com', 'notion.so']
+            use_playwright = self.playwright_adapter and (
+                any(site in url for site in js_sites) or
+                any(site in url for site in dynamic_sites)
+            )
+
+            if use_playwright:
+                print("📊 Using Playwright for JavaScript content...")
+                from core.domain.models import ContentType
+                page_content = await self.playwright_adapter.fetch_content(
+                    url, ContentType.HTML, wait_for_content=True
+                )
+                if page_content:
+                    content_text = page_content.content
+                    content_success = True
+                else:
+                    content_success = False
+            else:
+                # Use regular scraping
+                content = await self.scrape_url(url, content_type=content_type, extract_links=extract_links)
+                content_success = content.get("success")
+                content_text = content["data"]["content"] if content_success else ""
+
+            if not content_success:
+                return {
+                    "success": False,
+                    "error": "Failed to fetch content",
+                    "url": url,
+                    "timestamp": datetime.now().isoformat()
+                }
+
+            # Analyze content
+            analysis = self._analyze_content(content_text, question)
+
+            # Prepare result data
+            result_data = {
+                "url": url,
+                "question": question,
+                "analysis": analysis,
+                "format": output_format,
+                "timestamp": datetime.now().isoformat()
+            }
+
+            # Format output
+            formatted_result = self._format_output(result_data, output_format)
+
+            print(f"✅ Success! Analysis completed")
+
+            return {
+                "success": True,
+                "data": formatted_result,
+                "format": output_format,
+                "timestamp": datetime.now().isoformat()
+            }
+
+        except Exception as e:
+            print(f"❌ Error: {str(e)}")
+            return {
+                "success": False,
+                "error": str(e),
+                "url": url,
+                "timestamp": datetime.now().isoformat()
+            }
+
+    async def get_token_metrics(self,
+                               session_id: Optional[str] = None,
+                               report_type: str = "summary",
+                               limit: int = 100) -> Dict[str, Any]:
+        """
+        Get token usage metrics and analytics
+
+        Args:
+            session_id: Optional session ID for specific session metrics
+            report_type: Type of report (summary, detailed, recent)
+            limit: Number of recent records to include
+
+        Returns:
+            Dict containing token usage metrics and analytics
+        """
+        try:
+            if report_type == "recent":
+                # Get recent usage records
+                recent_usage = self.token_logger.get_recent_usage(limit)
+                return {
+                    "success": True,
+                    "report_type": "recent",
+                    "usage_records": [usage.to_dict() for usage in recent_usage],
+                    "count": len(recent_usage),
+                    "timestamp": datetime.now().isoformat()
+                }
+
+            elif report_type == "detailed":
+                # Generate detailed report
+                report = self.token_logger.generate_report(session_id)
+                return {
+                    "success": True,
+                    "report_type": "detailed",
+                    "data": report,
+                    "timestamp": datetime.now().isoformat()
+                }
+
+            else:  # summary
+                # Get summary metrics
+                if session_id:
+                    metrics = self.token_logger.get_session_metrics(session_id)
+                    if not metrics:
+                        return {
+                            "success": False,
+                            "error": f"No metrics found for session {session_id}",
+                            "timestamp": datetime.now().isoformat()
+                        }
+                else:
+                    metrics = self.token_logger.get_global_metrics()
+
+                return {
+                    "success": True,
+                    "report_type": "summary",
+                    "session_id": session_id,
+                    "metrics": metrics.to_dict(),
+                    "timestamp": datetime.now().isoformat()
+                }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "timestamp": datetime.now().isoformat()
+            }
+
     # Helper Methods
     def _calculate_quality_score(self, content: str) -> float:
         """Calculate content quality score (simplified)"""
@@ -748,6 +969,244 @@ Comprehensive analysis reveals significant advances in AI development...
                     lines.append(f"**{key}**: {value}")
 
         return "\n\n".join(lines)
+
+    def _analyze_content(self, content: str, question: str) -> str:
+        """Analyze content and generate a response to the question"""
+        import re
+
+        # Clean and prepare content
+        cleaned_content = self._clean_content(content)
+
+        # Extract structured information based on site type
+        structured_info = self._extract_structured_info(cleaned_content, content)
+
+        # Analyze question type and extract relevant information
+        question_lower = question.lower()
+        analysis_result = []
+
+        # Question type detection
+        if any(word in question_lower for word in ['main feature', 'key feature', 'primary function', 'what does']):
+            features = self._extract_features(structured_info, question_lower)
+            if features:
+                analysis_result.extend(features)
+
+        if any(word in question_lower for word in ['how to', 'how can', 'method', 'way to', 'steps']):
+            methods = self._extract_methods(structured_info, question_lower)
+            if methods:
+                analysis_result.extend(methods)
+
+        if any(word in question_lower for word in ['price', 'cost', 'dollar', '$', 'performance', '%']):
+            financial_data = self._extract_financial_data(structured_info, question_lower)
+            if financial_data:
+                analysis_result.extend(financial_data)
+
+        # If no specific patterns found, do general content analysis
+        if not analysis_result:
+            general_info = self._extract_general_info(structured_info, question_lower)
+            analysis_result.extend(general_info)
+
+        # Format final response
+        if analysis_result:
+            return "Key findings:\n" + "\n".join([f"• {item}" for item in analysis_result[:10]])
+        else:
+            return f"Unable to find specific information about '{question}' in the provided content."
+
+    def _clean_content(self, content: str) -> str:
+        """Clean content by removing noise and extracting meaningful text"""
+        # Remove script tags and their content
+        content = re.sub(r'<script[^>]*>.*?</script>', '', content, flags=re.DOTALL | re.IGNORECASE)
+
+        # Remove style tags and their content
+        content = re.sub(r'<style[^>]*>.*?</style>', '', content, flags=re.DOTALL | re.IGNORECASE)
+
+        # Remove JSON-LD structured data (common in modern sites)
+        content = re.sub(r'<script[^>]*type=["\']application/ld\+json["\'][^>]*>.*?</script>', '', content, flags=re.DOTALL | re.IGNORECASE)
+
+        # Remove HTML comments
+        content = re.sub(r'<!--.*?-->', '', content, flags=re.DOTALL)
+
+        # Remove excessive CSS-related content
+        content = re.sub(r'\{[^}]*box-sizing[^}]*\}', '', content, flags=re.IGNORECASE)
+        content = re.sub(r'rgba?\([^)]*\)', '', content)
+
+        # Remove HTML tags but keep content
+        content = re.sub(r'<[^>]+>', ' ', content)
+
+        # Decode HTML entities
+        import html
+        content = html.unescape(content)
+
+        # Clean up whitespace
+        content = re.sub(r'\s+', ' ', content)
+        content = content.strip()
+
+        return content
+
+    def _extract_structured_info(self, cleaned_content: str, raw_content: str) -> dict:
+        """Extract structured information from content"""
+        info = {
+            'title': '',
+            'headings': [],
+            'paragraphs': [],
+            'features': [],
+            'methods': [],
+            'prices': [],
+            'percentages': [],
+            'technical_terms': []
+        }
+
+        # Extract title (look for common title patterns)
+        title_patterns = [
+            r'<title[^>]*>(.*?)</title>',
+            r'<h1[^>]*>(.*?)</h1>',
+            r'"headline":"([^"]*)"',
+            r'"name":"([^"]*)"'
+        ]
+
+        for pattern in title_patterns:
+            match = re.search(pattern, raw_content, re.IGNORECASE | re.DOTALL)
+            if match:
+                info['title'] = re.sub(r'<[^>]+>', '', match.group(1)).strip()
+                break
+
+        # Extract headings from cleaned content
+        sentences = cleaned_content.split('. ')
+        for sentence in sentences:
+            if len(sentence) < 100 and any(word in sentence.lower() for word in ['generator', 'tool', 'feature', 'build', 'create', 'ai', 'questions', 'answers']):
+                info['headings'].append(sentence.strip())
+
+        # Extract features (sentences describing capabilities)
+        feature_patterns = [
+            r'(transforms?[^.]{20,150})',
+            r'(generates?[^.]{20,150})',
+            r'(creates?[^.]{20,150})',
+            r'(automatically[^.]{20,150})',
+            r'(ai-powered[^.]{20,150})',
+            r'(perfect for[^.]{20,150})',
+            r'(allows? you to[^.]{20,150})',
+            r'(helps? you[^.]{20,150})'
+        ]
+
+        for pattern in feature_patterns:
+            matches = re.findall(pattern, cleaned_content, re.IGNORECASE)
+            info['features'].extend([match.strip() for match in matches])
+
+        # Extract method-related content
+        method_patterns = [
+            r'(by using[^.]{20,200})',
+            r'(script or tool[^.]{20,200})',
+            r'(steps?[^.]{20,200})',
+            r'(process[^.]{20,200})',
+            r'(method[^.]{20,200})',
+            r'(build[^.]{20,200})',
+            r'(implementation[^.]{20,200})'
+        ]
+
+        for pattern in method_patterns:
+            matches = re.findall(pattern, cleaned_content, re.IGNORECASE)
+            info['methods'].extend([match.strip() for match in matches])
+
+        # Extract prices and financial data
+        price_patterns = [
+            r'\$[\d,]+\.?\d*',
+            r'[\d,]+\.\d{2}',
+            r'[\d,]+\s*dollars?'
+        ]
+
+        for pattern in price_patterns:
+            matches = re.findall(pattern, cleaned_content, re.IGNORECASE)
+            info['prices'].extend(matches)
+
+        # Extract percentages
+        percentage_patterns = [
+            r'[+-]?\d+\.?\d*\s*%',
+            r'\(\s*[+-]?\d+\.?\d*\s*%\s*\)'
+        ]
+
+        for pattern in percentage_patterns:
+            matches = re.findall(pattern, cleaned_content)
+            info['percentages'].extend(matches)
+
+        return info
+
+    def _extract_features(self, info: dict, question: str) -> list:
+        """Extract feature-related information"""
+        results = []
+
+        # Add title if relevant
+        if info['title'] and any(word in info['title'].lower() for word in ['generator', 'tool', 'ai', 'question', 'answer']):
+            results.append(info['title'])
+
+        # Add feature descriptions
+        for feature in info['features'][:5]:  # Limit to top 5 features
+            if len(feature) > 20:  # Ensure meaningful content
+                results.append(feature)
+
+        # Add relevant headings
+        for heading in info['headings'][:3]:
+            if len(heading) > 15:
+                results.append(heading)
+
+        return results
+
+    def _extract_methods(self, info: dict, question: str) -> list:
+        """Extract method/process-related information"""
+        results = []
+
+        # Add method descriptions
+        for method in info['methods'][:5]:
+            if len(method) > 20:
+                results.append(method)
+
+        # Look for step-by-step content
+        if 'step' in question:
+            step_patterns = [
+                r'(step \d+[^.]{20,150})',
+                r'(\d+\.\s*[^.]{20,150})',
+                r'(first[^.]{20,150})',
+                r'(then[^.]{20,150})',
+                r'(finally[^.]{20,150})'
+            ]
+
+            # This would need the original content, so we'll use available info
+            for feature in info['features']:
+                if any(word in feature.lower() for word in ['step', 'process', 'method', 'build', 'create']):
+                    results.append(feature)
+
+        return results
+
+    def _extract_financial_data(self, info: dict, question: str) -> list:
+        """Extract financial/performance data"""
+        results = []
+
+        # Add prices
+        for price in info['prices'][:5]:
+            results.append(f"Price found: {price}")
+
+        # Add percentages
+        for percentage in info['percentages'][:5]:
+            results.append(f"Performance indicator: {percentage}")
+
+        return results
+
+    def _extract_general_info(self, info: dict, question: str) -> list:
+        """Extract general information when no specific patterns match"""
+        results = []
+
+        # Add title
+        if info['title']:
+            results.append(info['title'])
+
+        # Add top features
+        results.extend(info['features'][:3])
+
+        # Add top methods
+        results.extend(info['methods'][:2])
+
+        # Add relevant headings
+        results.extend(info['headings'][:2])
+
+        return results
 
     # Protocol Handlers
     async def run_stdio(self):

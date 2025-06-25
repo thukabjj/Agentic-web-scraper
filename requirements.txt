@@ -16,3 +16,6 @@ httpx>=0.25.0
 # CLI utilities
 typer>=0.9.0
 rich>=13.7.0
+
+# Browser automation for JavaScript content
+playwright>=1.40.0

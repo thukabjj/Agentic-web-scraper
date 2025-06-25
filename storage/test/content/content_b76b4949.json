@@ -1,0 +1,11 @@
+{
+  "url": "https://test.example.com",
+  "content": "This is test content for validation",
+  "content_type": "html",
+  "timestamp": "2025-06-25T23:14:08.261105",
+  "title": "Test Page",
+  "status_code": 200,
+  "headers": {
+    "content-type": "text/html"
+  }
+}
