@@ -3,11 +3,13 @@
 ## CLI Usage
 
 Start the server in CLI mode:
+
 ```bash
 uv run mcp_server.py --cli
 ```
 
 Available commands:
+
 - `scrape <url> [--output-format ...] [--content-type ...] [--extract-links] [--max-content-length N]`
 - `analyze <url> <question> [--output-format ...] [--content-type ...] [--extract-links]`
 - `research <question>`
@@ -15,6 +17,7 @@ Available commands:
 - `quit`
 
 **Example:**
+
 ```bash
 scrape https://finance.yahoo.com/quote/%5EGSPC/ --output-format json --content-type html --extract-links --max-content-length 10000
 analyze https://finance.yahoo.com/quote/%5EGSPC/ "What is the current S&P 500 value?" --output-format json --content-type html --extract-links
