@@ -26,12 +26,13 @@ import argparse
 import asyncio
 import json
 import re
+import shlex
 import sys
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from urllib.parse import urljoin, urlparse
 
-from adapters.logging.token_logger import get_token_logger, log_llm_usage
+from adapters.logging.token_logger import get_token_logger
 from adapters.storage.json_storage import JsonStorageAdapter
 from adapters.web.fetch_adapter import FetchAdapter
 from config.settings import WebScraperSettings, settings
@@ -72,15 +73,15 @@ class WebScraperMCPServer:
         try:
             from adapters.web.playwright_adapter import PlaywrightAdapter
             self.playwright_adapter = PlaywrightAdapter()
-            print("✅ Playwright adapter loaded for JavaScript support")
+            print("✅ Playwright adapter loaded for JavaScript support", file=sys.stderr)
         except ImportError:
             self.playwright_adapter = None
-            print("⚠️ Playwright not available - JS sites may have limited data")
+            print("⚠️ Playwright not available - JS sites may have limited data", file=sys.stderr)
 
         self.storage = JsonStorageAdapter(settings.storage_path)
         self.token_logger = get_token_logger()
         self.tools = self._register_tools()
-        print("✅ MCP Web Scraper Server initialized")
+        print("✅ MCP Web Scraper Server initialized", file=sys.stderr)
 
     def _register_tools(self) -> Dict[str, Dict[str, Any]]:
         """Register all available MCP tools"""
@@ -453,7 +454,7 @@ class WebScraperMCPServer:
             Dict containing scraped content and metadata
         """
         try:
-            print(f"🚀 Scraping {url}...")
+            print(f"🚀 Scraping {url}...", file=sys.stderr)
 
             # Fetch content
             content = await self.web_adapter.fetch_content(
@@ -495,7 +496,7 @@ class WebScraperMCPServer:
             # Format output
             formatted_result = self._format_output(result_data, output_format)
 
-            print(f"✅ Success! Content length: {len(content.content)}")
+            print(f"✅ Success! Content length: {len(content.content)}", file=sys.stderr)
 
             return {
                 "success": True,
@@ -505,7 +506,7 @@ class WebScraperMCPServer:
             }
 
         except Exception as e:
-            print(f"❌ Error: {str(e)}")
+            print(f"❌ Error: {str(e)}", file=sys.stderr)
             return {
                 "success": False,
                 "error": str(e),
@@ -698,7 +699,7 @@ Comprehensive analysis reveals significant advances in AI development...
     ) -> Dict[str, Any]:
         """Analyze content from a specific URL and answer a question about it"""
         try:
-            print(f"🚀 Analyzing {url}...")
+            print(f"🚀 Analyzing {url}...", file=sys.stderr)
 
             # Check if this is a JavaScript-heavy or dynamic content site
             js_sites = ['finance.yahoo.com', 'google.com/finance', 'bloomberg.com', 'marketwatch.com']
@@ -709,7 +710,7 @@ Comprehensive analysis reveals significant advances in AI development...
             )
 
             if use_playwright:
-                print("📊 Using Playwright for JavaScript content...")
+                print("📊 Using Playwright for JavaScript content...", file=sys.stderr)
                 from core.domain.models import ContentType
                 page_content = await self.playwright_adapter.fetch_content(
                     url, ContentType.HTML, wait_for_content=True
@@ -748,7 +749,7 @@ Comprehensive analysis reveals significant advances in AI development...
             # Format output
             formatted_result = self._format_output(result_data, output_format)
 
-            print(f"✅ Success! Analysis completed")
+            print(f"✅ Success! Analysis completed", file=sys.stderr)
 
             return {
                 "success": True,
@@ -758,7 +759,7 @@ Comprehensive analysis reveals significant advances in AI development...
             }
 
         except Exception as e:
-            print(f"❌ Error: {str(e)}")
+            print(f"❌ Error: {str(e)}", file=sys.stderr)
             return {
                 "success": False,
                 "error": str(e),
@@ -1213,6 +1214,9 @@ Comprehensive analysis reveals significant advances in AI development...
         """Run MCP server in STDIO mode"""
         print("🚀 Starting Agentic Web Scraper MCP Server (STDIO mode)", file=sys.stderr)
         print(f"📋 Available tools: {', '.join(self.tools.keys())}", file=sys.stderr)
+        # Move any other non-JSON logs to stderr
+        if hasattr(self, 'playwright_adapter') and self.playwright_adapter:
+            print("✅ Playwright adapter loaded for JavaScript support", file=sys.stderr)
 
         while True:
             try:
@@ -1327,31 +1331,131 @@ Comprehensive analysis reveals significant advances in AI development...
         """Run in CLI mode for direct testing"""
         print("🖥️  Agentic Web Scraper - CLI Mode")
         print("Available commands:")
-        print("  scrape <url> - Scrape a single URL")
+        print(
+            "  scrape <url> [--output-format json|xml|markdown] "
+            "[--content-type html|json|text] [--extract-links] "
+            "[--max-content-length N]"
+        )
+        print(
+            "  analyze <url> <question> [--output-format json|markdown] "
+            "[--content-type html|json|text] [--extract-links]"
+        )
         print("  research <question> - Start interactive research")
         print("  help - Show this help")
         print("  quit - Exit")
 
+        def parse_flags(args, allowed_flags):
+            """Parse CLI flags into a dict of keyword arguments"""
+            kwargs = {}
+            i = 0
+            while i < len(args):
+                arg = args[i]
+                if arg in allowed_flags:
+                    if allowed_flags[arg] == bool:
+                        kwargs[arg.lstrip('-').replace('-', '_')] = True
+                        i += 1
+                    else:
+                        if i + 1 < len(args):
+                            value = args[i+1]
+                            if allowed_flags[arg] == int:
+                                try:
+                                    value = int(value)
+                                except Exception:
+                                    print(f"Invalid value for {arg}: {value}")
+                                    value = None
+                            kwargs[arg.lstrip('-').replace('-', '_')] = value
+                            i += 2
+                        else:
+                            print(f"Missing value for {arg}")
+                            i += 1
+                else:
+                    i += 1
+            return kwargs
+
         while True:
             try:
                 command = input("\n> ").strip()
-
+                if not command:
+                    continue
                 if command.lower() in ['quit', 'exit', 'q']:
                     break
                 elif command.lower() == 'help':
-                    print("Available tools:", ", ".join(self.tools.keys()))
-                elif command.startswith('scrape '):
-                    url = command[7:]
-                    result = await self.scrape_url(url, output_format="markdown")
-                    print(f"\n{result}")
-                elif command.startswith('research '):
-                    question = command[9:]
-                    result = await self.research_interactive(question)
-                    print(f"\n{result}")
+                    print("Available commands:")
+                    print(
+                        "  scrape <url> [--output-format json|xml|markdown] "
+                        "[--content-type html|json|text] [--extract-links] "
+                        "[--max-content-length N]"
+                    )
+                    print(
+                        "  analyze <url> <question> [--output-format json|markdown] "
+                        "[--content-type html|json|text] [--extract-links]"
+                    )
+                    print("  research <question> - Start interactive research")
+                    print("  help - Show this help")
+                    print("  quit - Exit")
                 else:
-                    print("Unknown command. Type 'help' for available commands.")
-
+                    parts = shlex.split(command)
+                    if not parts:
+                        continue
+                    cmd = parts[0]
+                    if cmd == 'scrape':
+                        if len(parts) < 2:
+                            print("Usage: scrape <url> [--output-format ...] [--content-type ...] [--extract-links] [--max-content-length N]")
+                            continue
+                        url = parts[1]
+                        allowed_flags = {
+                            '--output-format': str,
+                            '--content-type': str,
+                            '--extract-links': bool,
+                            '--max-content-length': int
+                        }
+                        kwargs = parse_flags(parts[2:], allowed_flags)
+                        output_format = kwargs.get('output_format', 'markdown')
+                        content_type = kwargs.get('content_type', 'html')
+                        extract_links = kwargs.get('extract_links', False)
+                        max_content_length = kwargs.get('max_content_length', None)
+                        result = await self.scrape_url(
+                            url,
+                            output_format=output_format,
+                            content_type=content_type,
+                            extract_links=extract_links,
+                            max_content_length=max_content_length
+                        )
+                        print(f"\n{result}")
+                    elif cmd == 'analyze':
+                        if len(parts) < 3:
+                            print("Usage: analyze <url> <question> [--output-format ...] [--content-type ...] [--extract-links]")
+                            continue
+                        url = parts[1]
+                        question = parts[2]
+                        allowed_flags = {
+                            '--output-format': str,
+                            '--content-type': str,
+                            '--extract-links': bool
+                        }
+                        kwargs = parse_flags(parts[3:], allowed_flags)
+                        output_format = kwargs.get('output_format', 'markdown')
+                        content_type = kwargs.get('content_type', 'html')
+                        extract_links = kwargs.get('extract_links', False)
+                        result = await self.analyze_url(
+                            url,
+                            question,
+                            output_format=output_format,
+                            content_type=content_type,
+                            extract_links=extract_links
+                        )
+                        print(f"\n{result}")
+                    elif cmd == 'research':
+                        if len(parts) < 2:
+                            print("Usage: research <question>")
+                            continue
+                        question = ' '.join(parts[1:])
+                        result = await self.research_interactive(question)
+                        print(f"\n{result}")
+                    else:
+                        print("Unknown command. Type 'help' for available commands.")
             except KeyboardInterrupt:
+                print("\nExiting CLI. Goodbye!")
                 break
             except Exception as e:
                 print(f"Error: {e}")

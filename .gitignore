@@ -183,10 +183,6 @@ dev-debug.log
 # OS specific
 .DS_Store
 
-# Task files
-# tasks.json
-# tasks/
-
 # AI Assistant rule directories
 .clinerules/
 .cursor/
@@ -200,3 +196,7 @@ dev-debug.log
 
 # Keep .github/ tracked (remove this line if you want to ignore it)
 # .github/
+
+# Task files
+# tasks.json
+# tasks/ 

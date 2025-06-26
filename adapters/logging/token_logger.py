@@ -11,6 +11,7 @@ Comprehensive logging for LLM API calls including:
 """
 
 import json
+import sys
 import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
@@ -20,6 +21,13 @@ from typing import Any, Dict, List, Optional
 
 import structlog
 
+# Ensure structlog logs to stderr, not stdout
+structlog.configure(
+    processors=[
+        structlog.processors.KeyValueRenderer(key_order=["event"])
+    ],
+    logger_factory=structlog.PrintLoggerFactory(file=sys.stderr),
+)
 
 class ProviderType(Enum):
     """Supported LLM providers"""
